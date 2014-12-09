@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exepage title='Topic' ><tincan id='http://www.ustadmobile.com/tincan//topic1'><activitydef>{"type": "http://adlnet.gov/expapi/activities/module", "name": {"en-US": "Topic"}, "description": {"en-US": "Topic"}}</activitydef></tincan><idevice type='mediaslide' id='2'>
+Topic 1</idevice>
+<idevice id="5" type="sort">
+	<sortoptions orientation="horizontal" dir="ttb" checkbuttontext="Check"/>
+	
+	<instructions><![CDATA[<div id="ta5_4" class="block iDevice_content">
+<p>idiots</p>
+</div>
+]]></instructions>
+
+	<positivefeedback><![CDATA[<div id="ta5_9" class="block iDevice_content">
+<p>correct</p>
+</div>
+]]></positivefeedback>
+	
+	<negativefeedback><![CDATA[<div id="ta5_10" class="block iDevice_content">
+<p>wrong dummy</p>
+</div>
+]]></negativefeedback>
+	
+	<item id='sortmeitem5_14'>
+<![CDATA[<div id="ta5_14" class="block iDevice_content">
+<p>3</p>
+</div>
+]]></item><item id='sortmeitem5_15'>
+<![CDATA[<div id="ta5_15" class="block iDevice_content">
+<p>5</p>
+</div>
+]]></item><item id='sortmeitem5_16'>
+<![CDATA[<div id="ta5_16" class="block iDevice_content">
+<p>8</p>
+</div>
+]]></item></idevice></exepage>

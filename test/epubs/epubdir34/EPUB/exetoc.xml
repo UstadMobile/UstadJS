@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exebase xml:lang='en'  audioformats='WAV,MP3,OGG,' videoformats='MP4,3GP,OGV,MPG,' resolutions='100x100,240x320,320x240,480x640,640x480,' >
+<page href='index.xml' title='Home'>
+
+<tincan id='http://www.ustadmobile.com/tincan//index'><activitydef>{"type": "http://adlnet.gov/expapi/activities/module", "name": {"en-US": "Home"}, "description": {"en-US": "Home"}}</activitydef></tincan>
+	<idevice id='1' title='Free Text/Media'/>
+	<idevice id='4' title='What is the meaning of life?'/>
+</page>
+<page href='topic1.xml' title='Topic'>
+
+<tincan id='http://www.ustadmobile.com/tincan//topic1'><activitydef>{"type": "http://adlnet.gov/expapi/activities/module", "name": {"en-US": "Topic"}, "description": {"en-US": "Topic"}}</activitydef></tincan>
+	<idevice id='2' title='Free Text/Media'/>
+	<idevice id='5' title='Try it dummy'/>
+</page>
+<page href='section.xml' title='Section'>
+
+<tincan id='http://www.ustadmobile.com/tincan//section'><activitydef>{"type": "http://adlnet.gov/expapi/activities/module", "name": {"en-US": "Section"}, "description": {"en-US": "Section"}}</activitydef></tincan>
+	<idevice id='0' title='Free Text/Media'/>
+</page>
+<page href='topic2.xml' title='Topic'>
+
+<tincan id='http://www.ustadmobile.com/tincan//topic2'><activitydef>{"type": "http://adlnet.gov/expapi/activities/module", "name": {"en-US": "Topic"}, "description": {"en-US": "Topic"}}</activitydef></tincan>
+	<idevice id='3' title='Free Text/Media'/>
+</page>
+</exebase>

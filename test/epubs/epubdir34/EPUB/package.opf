@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+        <package version="3.0" xmlns="http://www.idpf.org/2007/opf" unique-identifier="pub-id">
+        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:language>en</dc:language>
+<dc:title>Bob epub</dc:title>
+<dc:identifier id="pub-id">ebfc80fb-7453-45be-94e6-50a4246e374a</dc:identifier>
+<meta property="dcterms:modified">2014-12-08T23:11:40Z</meta></metadata>
+<manifest>
+<item id="nav" href="nav.xhtml" properties="nav" media-type="application/xhtml+xml" />
+<item id="ustadmobile-constants_js" href="ustadmobile-constants.js" media-type="application/javascript" />
+<item id="my_hide_show_png" href="my_hide_show.png" media-type="image/png" />
+<item id="panel-amusements_png" href="panel-amusements.png" media-type="image/png" />
+<item id="icon_reading_gif" href="icon_reading.gif" media-type="image/gif" />
+<item id="icon_e_gloss_gif" href="icon_e_gloss.gif" media-type="image/gif" />
+<item id="icon_e_journal_gif" href="icon_e_journal.gif" media-type="image/gif" />
+<item id="cover" href="cover.xhtml" media-type="application/xhtml+xml" />
+<item id="icon_inter_gif" href="icon_inter.gif" media-type="image/gif" />
+<item id="jquery-ui-1_10_4_custom_min_js" href="jquery-ui-1.10.4.custom.min.js" media-type="application/javascript" />
+<item id="my_header_fullscreen_jpg" href="my_header_fullscreen.jpg" media-type="image/jpeg" />
+<item id="icon_mobile_stockcorrect_png" href="icon_mobile_stockcorrect.png" media-type="image/png" />
+<item id="icon_multimedia_gif" href="icon_multimedia.gif" media-type="image/gif" />
+<item id="icon_assignment_gif" href="icon_assignment.gif" media-type="image/gif" />
+<item id="topic2_xml" href="topic2.xml" media-type="application/xml" />
+<item id="jqm-app-theme_css" href="jqm-app-theme.css" media-type="text/css" />
+<item id="icon_attention_gif" href="icon_attention.gif" media-type="image/gif" />
+<item id="ustadmobile_css" href="ustadmobile.css" media-type="text/css" />
+<item id="icon_technology_gif" href="icon_technology.gif" media-type="image/gif" />
+<item id="jquery_mobile_min_js" href="jquery.mobile.min.js" media-type="application/javascript" />
+<item id="my_nav_arrow_gif" href="my_nav_arrow.gif" media-type="image/gif" />
+<item id="deviceframe_html" href="deviceframe.html" media-type="text/html" />
+<item id="icon_define_gif" href="icon_define.gif" media-type="image/gif" />
+<item id="jqm-content-theme_css" href="jqm-content-theme.css" media-type="text/css" />
+<item id="contentv3_xml" href="contentv3.xml" media-type="application/xml" />
+<item id="content_css" href="content.css" media-type="text/css" />
+<item id="home" href="home.xhtml" media-type="application/xhtml+xml" properties="scripted"/>
+<item id="tincan_js" href="tincan.js" media-type="application/javascript" />
+<item id="locale" href="locale" media-type="application/octet-stream" />
+<item id="hi_js" href="locale/hi.js" media-type="application/javascript" />
+<item id="es_js" href="locale/es.js" media-type="application/javascript" />
+<item id="default_js" href="locale/default.js" media-type="application/javascript" />
+<item id="ar_js" href="locale/ar.js" media-type="application/javascript" />
+<item id="en_js" href="locale/en.js" media-type="application/javascript" />
+<item id="en-gb_js" href="locale/en-gb.js" media-type="application/javascript" />
+<item id="ustadmobile_js" href="ustadmobile.js" media-type="application/javascript" />
+<item id="icon_experiment_gif" href="icon_experiment.gif" media-type="image/gif" />
+<item id="jquery-ui-1_10_3_custom_min_js" href="jquery-ui-1.10.3.custom.min.js" media-type="application/javascript" />
+<item id="base_css" href="base.css" media-type="text/css" />
+<item id="icon_objectives_gif" href="icon_objectives.gif" media-type="image/gif" />
+<item id="exedragndrop_js" href="exedragndrop.js" media-type="application/javascript" />
+<item id="icon_mobile_stockwrong_png" href="icon_mobile_stockwrong.png" media-type="image/png" />
+<item id="topic2" href="topic2.xhtml" media-type="application/xhtml+xml" properties="scripted"/>
+<item id="ustadmobile-booklist_js" href="ustadmobile-booklist.js" media-type="application/javascript" />
+<item id="icon_web_resource_gif" href="icon_web_resource.gif" media-type="image/gif" />
+<item id="ustadmobile-settings_js" href="ustadmobile-settings.js" media-type="application/javascript" />
+<item id="my_ims_header_jpg" href="my_ims_header.jpg" media-type="image/jpeg" />
+<item id="exe_jquery_js" href="exe_jquery.js" media-type="application/javascript" />
+<item id="icon_generic_gif" href="icon_generic.gif" media-type="image/gif" />
+<item id="my_js_js" href="my_js.js" media-type="application/javascript" />
+<item id="icon_synthesis_gif" href="icon_synthesis.gif" media-type="image/gif" />
+<item id="icon_calc_gif" href="icon_calc.gif" media-type="image/gif" />
+<item id="my_list_gif" href="my_list.gif" media-type="image/gif" />
+<item id="icon_gallery_gif" href="icon_gallery.gif" media-type="image/gif" />
+<item id="icon_reflection_gif" href="icon_reflection.gif" media-type="image/gif" />
+<item id="section_xml" href="section.xml" media-type="application/xml" />
+<item id="topic1_xml" href="topic1.xml" media-type="application/xml" />
+<item id="icon_diagnosis_gif" href="icon_diagnosis.gif" media-type="image/gif" />
+<item id="icon_key_points_gif" href="icon_key_points.gif" media-type="image/gif" />
+<item id="icon_question_gif" href="icon_question.gif" media-type="image/gif" />
+<item id="icon_review_gif" href="icon_review.gif" media-type="image/gif" />
+<item id="nav_css" href="nav.css" media-type="text/css" />
+<item id="sortItems-0_2_js" href="sortItems-0.2.js" media-type="application/javascript" />
+<item id="section" href="section.xhtml" media-type="application/xhtml+xml" properties="scripted"/>
+<item id="jquery_touchSwipe_min_js" href="jquery.touchSwipe.min.js" media-type="application/javascript" />
+<item id="icon_discussion_gif" href="icon_discussion.gif" media-type="image/gif" />
+<item id="stock-stop_png" href="stock-stop.png" media-type="image/png" />
+<item id="icon_preknowledge_gif" href="icon_preknowledge.gif" media-type="image/gif" />
+<item id="popup_bg_gif" href="popup_bg.gif" media-type="image/gif" />
+<item id="jqm-base_css" href="jqm-base.css" media-type="text/css" />
+<item id="icon_assess_gif" href="icon_assess.gif" media-type="image/gif" />
+<item id="exetoc_html" href="exetoc.html" media-type="text/html" />
+<item id="images" href="images" media-type="application/octet-stream" />
+<item id="icons-18-black_png" href="images/icons-18-black.png" media-type="image/png" />
+<item id="icons-36-black_png" href="images/icons-36-black.png" media-type="image/png" />
+<item id="ajax-loader_gif" href="images/ajax-loader.gif" media-type="image/gif" />
+<item id="icons-18-white_png" href="images/icons-18-white.png" media-type="image/png" />
+<item id="icons-36-white_png" href="images/icons-36-white.png" media-type="image/png" />
+<item id="banne1_png" href="images/banne1.png" media-type="image/png" />
+<item id="favicon_ico" href="favicon.ico" media-type="image/vnd.microsoft.icon" />
+<item id="index_xml" href="index.xml" media-type="application/xml" />
+<item id="topic1" href="topic1.xhtml" media-type="application/xhtml+xml" properties="scripted"/>
+<item id="tincan_queue_js" href="tincan_queue.js" media-type="application/javascript" />
+<item id="icon_activity_gif" href="icon_activity.gif" media-type="image/gif" />
+<item id="ustadmobile-common_js" href="ustadmobile-common.js" media-type="application/javascript" />
+<item id="common_js" href="common.js" media-type="application/javascript" />
+<item id="content_data" href="content.data" media-type="application/octet-stream" />
+<item id="fonts" href="fonts" media-type="application/octet-stream" />
+<item id="fontawesome-webfont_eot" href="fonts/fontawesome-webfont.eot" media-type="application/vnd.ms-fontobject" />
+<item id="fontawesome-webfont_woff" href="fonts/fontawesome-webfont.woff" media-type="application/font-woff" />
+<item id="fontawesome-webfont_ttf" href="fonts/fontawesome-webfont.ttf" media-type="application/font-sfnt" />
+<item id="FontAwesome_otf" href="fonts/FontAwesome.otf" media-type="application/font-sfnt" />
+<item id="fontawesome-webfont_svg" href="fonts/fontawesome-webfont.svg" media-type="image/svg+xml" />
+<item id="ustadmobile-contentzone_js" href="ustadmobile-contentzone.js" media-type="application/javascript" />
+<item id="my_logo_jpg" href="my_logo.jpg" media-type="image/jpeg" />
+<item id="mobiledevice_png" href="mobiledevice.png" media-type="image/png" />
+<item id="icon_casestudy_gif" href="icon_casestudy.gif" media-type="image/gif" />
+<item id="icon_time_gif" href="icon_time.gif" media-type="image/gif" />
+<item id="icon_summary_gif" href="icon_summary.gif" media-type="image/gif" />
+<item id="icon_present_gif" href="icon_present.gif" media-type="image/gif" />
+<item id="ustadmobile-localization_js" href="ustadmobile-localization.js" media-type="application/javascript" />
+<item id="exetoc_xml" href="exetoc.xml" media-type="application/xml" />
+<item id="my_header_jpg" href="my_header.jpg" media-type="image/jpeg" />
+<item id="exe_tincan_js" href="exe_tincan.js" media-type="application/javascript" />
+<item id="content_xsd" href="content.xsd" media-type="application/xml" />
+</manifest>
+<spine>
+<itemref idref="cover"/>
+<itemref idref="home"/>
+<itemref idref="topic1"/>
+<itemref idref="section"/>
+<itemref idref="topic2"/>
+</spine>
+</package>

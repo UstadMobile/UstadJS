@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exepage title='Section' ><tincan id='http://www.ustadmobile.com/tincan//section'><activitydef>{"type": "http://adlnet.gov/expapi/activities/module", "name": {"en-US": "Section"}, "description": {"en-US": "Section"}}</activitydef></tincan><idevice type='html' id='0' >
+<![CDATA[<div id="ta0_68" class="block iDevice_content">
+<p>Section Text</p>
+</div>
+]]></idevice>
+</exepage>

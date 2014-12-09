@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exepage title='Home' ><tincan id='http://www.ustadmobile.com/tincan//index'><activitydef>{"type": "http://adlnet.gov/expapi/activities/module", "name": {"en-US": "Home"}, "description": {"en-US": "Home"}}</activitydef></tincan><idevice type='html' id='1' >
+<![CDATA[<div id="ta1_68" class="block iDevice_content">
+<p>Home Page 1</p>
+</div>
+]]></idevice>
+<idevice type='multichoice' id='4'>
+<question ><![CDATA[<div id="taquestion4_69" class="block question iDevice_content">
+<p>What is the meaning of life?</p>
+</div>
+]]>
+<answer iscorrect='true' id='ans4_72' score=''> 
+<![CDATA[
+<div id="taans4_72" class="block iDevice_content">
+<p>42</p>
+</div>
+
+]]>
+<feedback >
+<![CDATA[
+<div id="taf4_72" class="block iDevice_content">
+<p>right</p>
+</div>
+]]></feedback>
+</answer>
+
+
+<answer iscorrect='false' id='ans4_76' score=''> 
+<![CDATA[
+<div id="taans4_76" class="block iDevice_content">
+<p>22</p>
+</div>
+
+]]>
+<feedback >
+<![CDATA[
+<div id="taf4_76" class="block iDevice_content">
+<p>wrong - so wrong</p>
+</div>
+]]></feedback>
+</answer>
+
+
+<tincan id='http://www.ustadmobile.com/tincan///4/question4_69'><activitydef>{"choices": [{"id": "ans4_72", "description": {"en-US": "\n42\n\n"}}, {"id": "ans4_76", "description": {"en-US": "\n22\n\n"}}], "correctResponsesPattern": ["ans4_72"], "type": "http://adlnet.gov/expapi/activities/cmi.interaction", "name": {"en-US": "\nWhat is the meaning of life?\n\n"}, "interactionType": "choice"}</activitydef></tincan></question></idevice>
+</exepage>

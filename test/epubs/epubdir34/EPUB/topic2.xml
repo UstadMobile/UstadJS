@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exepage title='Topic' ><tincan id='http://www.ustadmobile.com/tincan//topic2'><activitydef>{"type": "http://adlnet.gov/expapi/activities/module", "name": {"en-US": "Topic"}, "description": {"en-US": "Topic"}}</activitydef></tincan><idevice type='html' id='3' >
+<![CDATA[<div id="ta3_68" class="block iDevice_content">
+<p>Final topic text</p>
+</div>
+]]></idevice>
+</exepage>
