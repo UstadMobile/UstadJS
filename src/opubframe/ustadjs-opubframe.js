@@ -121,8 +121,8 @@ GNU General Public License for more details.
          */
         go: function(increment, callback) {
             var nextIndex = this.options.spine_pos + increment;
-            var nextURL = this.options.baseurl 
-                    + this.options.opf.spine[nextIndex].href;
+            var nextURL = this.options.baseurl +
+                    this.options.opf.spine[nextIndex].href;
             this.iframeElement.setAttribute("src", nextURL);
             $(this.iframeElement).one("load", null, $.proxy(function() {
                         UstadJS.runCallback(callback, this, ["success"]);

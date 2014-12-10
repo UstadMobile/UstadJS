@@ -117,10 +117,9 @@ UstadJSOPF.prototype = {
         //now find the spine
         var spine = this.xmlDoc.getElementsByTagName("spine")[0];
         var spineItems = spine.getElementsByTagName("itemref");
-        for(var i = 0; i < spineItems.length; i++) {
-            var itemID = spineItems[i].getAttribute("idref");
-            var opfItem = this.items[itemID];
-            this.spine.push(opfItem);
+        for(var j = 0; j < spineItems.length; j++) {
+            var itemID = spineItems[j].getAttribute("idref");
+            this.spine.push(this.items[itemID]);
         }
     },
     
