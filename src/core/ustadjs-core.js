@@ -87,6 +87,7 @@ UstadJSOPF.prototype = {
     items: {},
     xmlDoc : null,
     baseUrl: null,
+    title: "",
     
     /**
      * 
@@ -121,6 +122,11 @@ UstadJSOPF.prototype = {
             var itemID = spineItems[j].getAttribute("idref");
             this.spine.push(this.items[itemID]);
         }
+        
+        //now load meta data: according to OPF spec there must be at least one title
+        var manifestEl = this.xmlDoc.getElementsByTagName("metadata")[0];
+        var titleEl = manifestEl.getElementsByTagNameNS("*", "title")[0];
+        this.title = titleEl.textContent;
     },
     
     /**

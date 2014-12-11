@@ -69,7 +69,7 @@ function testUstadJSGetContainer() {
 
 function testUstadJSLoadOPF() {
     QUnit.test("Load OPF", function(assert) {
-        assert.expect(4);
+        assert.expect(5);
         var donefn = assert.async();
         
         $.ajax("assets/package.opf", {
@@ -90,6 +90,8 @@ function testUstadJSLoadOPF() {
             assert.ok(jsOPF.getSpinePositionByHref(
                 "notactuallyhere.xhtml")=== -1, 
                 "Spine does not have file returns -1");
+            assert.ok(jsOPF.title === "Bob epub", 
+                "Spine loads title: Bob epub");
             donefn();
         });
     });
