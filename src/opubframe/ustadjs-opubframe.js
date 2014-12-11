@@ -69,7 +69,30 @@ GNU General Public License for more details.
         },
         
         /**
-         * Load publication by URL
+         * Load publication by path specified to the OPF file
+         * 
+         * @param {String} opfURL URL of OPF file
+         * @param {function} callback
+         */
+        loadfromopf: function(opfURL, callback) {
+            var opfBaseURL = opfURL.substring(0, opfURL.lastIndexOf("/")+1);
+            this.options.baseurl = opfBaseURL;
+            $.ajax(opfURL, {
+                dataType : "text"
+            }).done($.proxy(function(data) {
+                this.options.opf = new UstadJSOPF();
+                this.options.opf.loadFromOPF(data);
+                var firstURL = opfBaseURL + this.options.opf.spine[0].href;
+                this.iframeElement.setAttribute("src",firstURL);
+                $(this.iframeElement).one("load", null, $.proxy(function() {
+                    UstadJS.runCallback(callback, this, ["success", 
+                    this.options.opf]);
+                }, this));
+            }, this));
+        },
+        
+        /**
+         * Load publication from container manifest
          * 
          * First open the META-INF/container.xml to find root files
          * 
@@ -82,7 +105,7 @@ GNU General Public License for more details.
          * @param {type} containerRootIndex root package file to load (e.g. 0 for first publication)
          * @param {function} callback function to call when done - args are status, opf
          */
-        loadpub: function(baseURL, containerRootIndex, callback) {
+        loadfrommanifest: function(baseURL, containerRootIndex, callback) {
             if(baseURL.charAt(baseURL.length-1) !== '/') {
                 baseURL += '/';
             }
@@ -93,24 +116,9 @@ GNU General Public License for more details.
             }).done($.proxy(function(data) {
                 var rootFilesArr = UstadJS.getContainerRootfilesFromXML(data);
                 var opfURL = baseURL + rootFilesArr[containerRootIndex]['full-path'];
-                var opfBaseURL = opfURL.substring(0, opfURL.lastIndexOf("/")+1);
-                this.options.baseurl = opfBaseURL;
                 console.log("opfURL is : " + opfURL);
-                
-                $.ajax(opfURL, {
-                    dataType : "text"
-                }).done($.proxy(function(data) {
-                    this.options.opf = new UstadJSOPF();
-                    this.options.opf.loadFromOPF(data);
-                    var firstURL = opfBaseURL + this.options.opf.spine[0].href;
-                    this.iframeElement.setAttribute("src",firstURL);
-                    $(this.iframeElement).one("load", null, $.proxy(function() {
-                        UstadJS.runCallback(callback, this, ["success", 
-                        this.options.opf]);
-                    }, this));
-                }, this));
+                this.loadfromopf(opfURL, callback);
             }, this));
-                
         },
         
         /**

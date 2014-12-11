@@ -52,7 +52,7 @@ function testUstadJSOpubFrameCreate() {
         assert.expect(3);
         var donefn = assert.async();
         
-        $("#test_opubframe").opubframe("loadpub", "epubs/epubdir34", 0, function(result) {
+        $("#test_opubframe").opubframe("loadfrommanifest", "epubs/epubdir34", 0, function(result) {
             assert.ok(result === "success", "Loaded container");
             assert.ok(
                 $("#test_opubframe").opubframe("option", "spine_pos") === 0,
