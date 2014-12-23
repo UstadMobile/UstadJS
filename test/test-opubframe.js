@@ -49,11 +49,24 @@ function testUstadJSOpubFrameCreate() {
    
    
     QUnit.test("OPub Frame load", function(assert) {
-        assert.expect(3);
+        assert.expect(5);
         var donefn = assert.async();
         
         $("#test_opubframe").opubframe("loadfrommanifest", "epubs/epubdir34", 0, function(result) {
             assert.ok(result === "success", "Loaded container");
+            
+            $("#test_opubframe").opubframe("option", "height", "500px");
+            assert.ok($("#test_opubframe").css("height") === "500px",
+                "Set height on opub frame itself OK");
+            var iframeHeight = $("#test_opubframe iframe").outerHeight(false);
+            var elHeight = $("#test_opubframe").outerHeight(false);
+            var heightDiff = elHeight - iframeHeight;
+            assert.ok(elHeight >= iframeHeight && heightDiff < 10,
+                "Height of iframe within is OK");
+            
+            //assert.ok($("#test_opubframe iframe").css("height") === "500px",
+            //    "Set height on opub nested iframe OK");
+            
             assert.ok(
                 $("#test_opubframe").opubframe("option", "spine_pos") === 0,
                 "Spine at Pos 0");

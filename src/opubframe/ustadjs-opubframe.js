@@ -44,7 +44,9 @@ GNU General Public License for more details.
             "spine_pos" : 0,
             "baseurl" : null,
             //the UstadJSOPF object being represented
-            "opf" : null
+            "opf" : null,
+            "height" : "100%",
+            "num_pages" : 0
         },
         
         /**
@@ -53,10 +55,26 @@ GNU General Public License for more details.
         _create : function() {
             this.iframeElement = document.createElement("iframe");
             this.element.append(this.iframeElement);
+            $(this.iframeElement).css("width", "100%").css("height", "100%");
+            $(this.iframeElement).css("margin", "0px");
+            $(this.iframeElement).css("border", "none");
+            
             this.iframeElement.addEventListener("load",
                 $.proxy(this.iframeLoadEvt, this), true);
             this.runOnceOnFrameLoad = [];
+            $(this.element).addClass("umjs-opubframe");
         },
+        
+        _setOption: function(key, value) {
+            this._super(key, value);
+            if(key === "height") {
+                $(this.element).css("height", value);
+                $(this.iframeElement).css("height", 
+                    $(this.element).outerHeight(false)-4);
+            }
+        },
+        
+        
         
         iframeLoadEvt: function(evt) {
             //figure out where we are relative to package.opf
@@ -65,7 +83,8 @@ GNU General Public License for more details.
                     this.options.baseurl) + this.options.baseurl.length);
             this.options.spine_pos = this.options.opf.getSpinePositionByHref(
                     relativeURL);
-            console.log("iframe loaded " + relativeURL);
+            $(this.element).trigger("pageloaded", evt, {"relativeURL" :
+                        relativeURL});
         },
         
         /**
@@ -75,7 +94,10 @@ GNU General Public License for more details.
          * @param {function} callback
          */
         loadfromopf: function(opfURL, callback) {
-            var opfBaseURL = opfURL.substring(0, opfURL.lastIndexOf("/")+1);
+            var opfBaseURL = location.href.substring(0, 
+                location.href.lastIndexOf("/")+1);
+            opfBaseURL += opfURL.substring(0, opfURL.lastIndexOf("/")+1);
+            
             this.options.baseurl = opfBaseURL;
             $.ajax(opfURL, {
                 dataType : "text"
@@ -83,6 +105,8 @@ GNU General Public License for more details.
                 this.options.opf = new UstadJSOPF();
                 this.options.opf.loadFromOPF(data);
                 var firstURL = opfBaseURL + this.options.opf.spine[0].href;
+                this.options.num_pages = this.options.opf.spine.length;
+                
                 this.iframeElement.setAttribute("src",firstURL);
                 $(this.iframeElement).one("load", null, $.proxy(function() {
                     UstadJS.runCallback(callback, this, ["success", 
@@ -136,6 +160,5 @@ GNU General Public License for more details.
                         UstadJS.runCallback(callback, this, ["success"]);
                     }, this));
         }
-        
     });
 }(jQuery));

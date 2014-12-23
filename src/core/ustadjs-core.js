@@ -79,10 +79,15 @@ var UstadJSOPF = null;
 
 //empty constructor
 UstadJSOPF = function() {
-    
+    this.spine = [];
+    this.items = {};
+    this.xmlDoc = null;
+    this.baseUrl = null;
+    this.title = "";
 };
 
 UstadJSOPF.prototype = {
+    
     spine : [],
     items: {},
     xmlDoc : null,
