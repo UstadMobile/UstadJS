@@ -47,10 +47,27 @@ QUnit.module("UstadJS", {
  */
 function testUstadJSOpubFrameCreate() {
    
+    QUnit.test("Handle frame query parameters", function(assert) {
+        assert.expect(2);
+       
+        $("#test_opubframe").opubframe("option", "page_query_params",
+            "foo=bar&bar=foo2");
+        var adjURL = $("#test_opubframe").opubframe("appendParamsToURL", 
+            "index.html");
+        assert.equal(adjURL, "index.html?foo=bar&bar=foo2");
+        $("#test_opubframe").opubframe("option", "page_query_params", null);
+        adjURL = $("#test_opubframe").opubframe("appendParamsToURL", 
+            "index.html");
+        assert.equal(adjURL, "index.html");
+    });
+   
    
     QUnit.test("OPub Frame load", function(assert) {
         assert.expect(5);
         var donefn = assert.async();
+        
+        $("#test_opubframe").opubframe("option", "page_query_params",
+            "foo=bar&bar=foo2");
         
         $("#test_opubframe").opubframe("loadfrommanifest", "epubs/epubdir34", 0, function(result) {
             assert.ok(result === "success", "Loaded container");

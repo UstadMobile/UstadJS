@@ -72,6 +72,21 @@ UstadJS = {
         if(typeof fn !== "undefined" && fn !== null) {
             fn.apply(context, args);
         }   
+    },
+    
+    /**
+     * Remove the query portion of a URL (if present)
+     * 
+     * @param fullURL {String} URL possibly including a query string
+     * 
+     * @returns {String} the URL without the query string if it was there...
+     */
+    removeQueryFromURL: function(fullURL) {
+        if(fullURL.indexOf("?") !== -1) {
+            return fullURL.substring(0, fullURL.indexOf("?"));
+        }else {
+            return fullURL;
+        }
     }
 };
 

@@ -46,7 +46,9 @@ GNU General Public License for more details.
             //the UstadJSOPF object being represented
             "opf" : null,
             "height" : "100%",
-            "num_pages" : 0
+            "num_pages" : 0,
+            //the query parameters to add (e.g. tincan params) 
+            "page_query_params": null
         },
         
         /**
@@ -74,13 +76,26 @@ GNU General Public License for more details.
             }
         },
         
-        
+        /**
+         * Add the appropriate query parameters to the given url
+         * 
+         * @param {String} url URL to add parameters to
+         * @returns {String} the url with query parameters (if any)
+         */
+        appendParamsToURL: function(url) {
+            if(this.options.page_query_params) {
+                return url + "?" + this.options.page_query_params;
+            }else {
+                return url;
+            }
+        },
         
         iframeLoadEvt: function(evt) {
             //figure out where we are relative to package.opf
             var iframeSrc = evt.target.src;
             var relativeURL = iframeSrc.substring(iframeSrc.indexOf(
                     this.options.baseurl) + this.options.baseurl.length);
+            relativeURL = UstadJS.removeQueryFromURL(relativeURL);
             this.options.spine_pos = this.options.opf.getSpinePositionByHref(
                     relativeURL);
             $(this.element).trigger("pageloaded", evt, {"relativeURL" :
@@ -105,6 +120,8 @@ GNU General Public License for more details.
                 this.options.opf = new UstadJSOPF();
                 this.options.opf.loadFromOPF(data);
                 var firstURL = opfBaseURL + this.options.opf.spine[0].href;
+                firstURL = this.appendParamsToURL(firstURL);
+                
                 this.options.num_pages = this.options.opf.spine.length;
                 
                 this.iframeElement.setAttribute("src",firstURL);
@@ -155,6 +172,7 @@ GNU General Public License for more details.
             var nextIndex = this.options.spine_pos + increment;
             var nextURL = this.options.baseurl + 
                     this.options.opf.spine[nextIndex].href;
+            nextURL = this.appendParamsToURL(nextURL);
             this.iframeElement.setAttribute("src", nextURL);
             $(this.iframeElement).one("load", null, $.proxy(function() {
                         UstadJS.runCallback(callback, this, ["success"]);

@@ -36,7 +36,20 @@ QUnit.module("UstadJS-Core");
     testUstadJSGetContainer();
     testUstadJSLoadOPF();
     testRunCallback();
+    testURLQueryRemoval();
 }());
+
+function testURLQueryRemoval() {
+    QUnit.test("Query removal from URL functions", function(assert) {
+        var baseUrl = "http://www.server.com/some/file";
+        var urlWithQuery = baseUrl + "?foo=bar&foo2=baa"
+        
+        assert.equal(UstadJS.removeQueryFromURL(baseUrl), baseUrl,
+            "URL without query remains the same");
+        assert.equal(UstadJS.removeQueryFromURL(urlWithQuery), baseUrl,
+            "URL with query has it removed and equals base URL");
+    });
+}
 
 function testRunCallback() {
     QUnit.test("Runcallback runs", function(assert) {
