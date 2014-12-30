@@ -87,7 +87,28 @@ UstadJS = {
         }else {
             return fullURL;
         }
-    }
+    },
+    
+    /**
+     * From the given url, which may be relative or absolute; construct an 
+     * absoulte url.  Will use location object to determine current base URL
+     * 
+     * @method
+     * 
+     * @param {String} url Given url which may be absolute (e.g. starts with http:// or https://) or relative
+     * 
+     * @returns {String} URL made absoulute if it was not before
+     */
+    makeAbsoluteURL: function(url) {
+        if(url.indexOf("://") !== -1) {
+            return url;
+        } else {
+            var absURL = location.href.substring(0, 
+                location.href.lastIndexOf("/")+1);
+            absURL += url;
+            return absURL;
+        }
+    },
 };
 
 var UstadJSOPF = null;

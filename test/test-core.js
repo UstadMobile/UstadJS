@@ -37,7 +37,22 @@ QUnit.module("UstadJS-Core");
     testUstadJSLoadOPF();
     testRunCallback();
     testURLQueryRemoval();
+    testAbsoluteURLs();
 }());
+
+function testAbsoluteURLs() {
+    QUnit.test("Turn relative URLs into absolute", function(assert) {
+        var relativeURL = "dir/file.html";
+        var currentDir = location.href.substring(0, 
+                location.href.lastIndexOf("/")+1);
+        assert.equal(UstadJS.makeAbsoluteURL(relativeURL),
+            currentDir + relativeURL, "Relative converted to absolute URL");
+        var absURL = "http://www.server.com/some/file.html";
+        assert.equal(UstadJS.makeAbsoluteURL(absURL), absURL, 
+            "Absolute URL remains as it was");
+            
+    });
+}
 
 function testURLQueryRemoval() {
     QUnit.test("Query removal from URL functions", function(assert) {

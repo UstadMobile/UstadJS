@@ -109,9 +109,11 @@ GNU General Public License for more details.
          * @param {function} callback
          */
         loadfromopf: function(opfURL, callback) {
-            var opfBaseURL = location.href.substring(0, 
-                location.href.lastIndexOf("/")+1);
+            
+            //convert the URL to being absolute for the iframe
+            var opfBaseURL = "";
             opfBaseURL += opfURL.substring(0, opfURL.lastIndexOf("/")+1);
+            opfBaseURL = UstadJS.makeAbsoluteURL(opfBaseURL);
             
             this.options.baseurl = opfBaseURL;
             $.ajax(opfURL, {
