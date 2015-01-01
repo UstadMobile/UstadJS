@@ -102,6 +102,7 @@ GNU General Public License for more details.
                         relativeURL});
         },
         
+        
         /**
          * Load publication by path specified to the OPF file
          * 

@@ -38,7 +38,28 @@ QUnit.module("UstadJS-Core");
     testRunCallback();
     testURLQueryRemoval();
     testAbsoluteURLs();
+    testTinCanXML();
 }());
+
+function testTinCanXML() {
+    QUnit.test("Load and interpret TinCanXML", function(assert) {
+        assert.expect(2);
+        var donefn = assert.async();
+        
+        $.ajax("assets/tincan.xml", {
+            dataType  : "text"
+        }).done(function(tcxmlStr){
+            var ujsTinCanObj = new UstadJSTinCanXML();
+            ujsTinCanObj.loadFromXML(tcxmlStr);
+            assert.equal(ujsTinCanObj.launchActivityID,
+                "http://www.ustadmobile.com/um-tincan/activities/8cd214e4-7861-4f3a-b227-493b45a4609c",
+                "Got correct ID from TinCan XML");
+            assert.equal(ujsTinCanObj.launchHREF, "ustad_contentepubrunner.html",
+                "got correct launch href");
+            donefn();
+        });
+    });
+}
 
 function testAbsoluteURLs() {
     QUnit.test("Turn relative URLs into absolute", function(assert) {

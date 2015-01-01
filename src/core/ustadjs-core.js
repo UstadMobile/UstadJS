@@ -201,3 +201,46 @@ UstadJSOPFItem.prototype = {
     href : null,
     scripted: null
 };
+
+var UstadJSTinCanXML = null;
+
+UstadJSTinCanXML = function() {
+    //original XML source document
+    this.xmlDoc = null;
+    
+    //the launch activity ID
+    this.launchActivityID = null;
+    
+    //the HREF to launch according to this xml
+    this.launchHREF = null;
+    
+};
+
+UstadJSTinCanXML.prototype = {
+    /**
+     * 
+     * @param {Object} tcXMLSrc String or xml document
+     * @returns {undefined}
+     */
+    loadFromXML: function(tcXMLSrc) {
+        if(typeof tcXMLSrc === "string") {
+            var parser = new DOMParser();
+            tcXMLSrc  = parser.parseFromString(tcXMLSrc, "text/xml");
+        }
+        
+        this.xmlDoc = tcXMLSrc;
+        
+        var activityElements = this.xmlDoc.getElementsByTagName("activity");
+        for(var i = 0; i < activityElements.length; i++) {
+            var launchEls = activityElements[i].getElementsByTagName("launch");
+            if(launchEls.length > 0) {
+                //found launch element
+                this.launchActivityID = activityElements[i].getAttribute("id");
+                this.launchHREF = launchEls[0].textContent;
+                break;
+            }
+        }
+    }
+};
+
+
