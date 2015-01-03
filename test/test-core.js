@@ -43,7 +43,7 @@ QUnit.module("UstadJS-Core");
 
 function testTinCanXML() {
     QUnit.test("Load and interpret TinCanXML", function(assert) {
-        assert.expect(2);
+        assert.expect(9);
         var donefn = assert.async();
         
         $.ajax("assets/tincan.xml", {
@@ -54,9 +54,65 @@ function testTinCanXML() {
             assert.equal(ujsTinCanObj.launchActivityID,
                 "http://www.ustadmobile.com/um-tincan/activities/8cd214e4-7861-4f3a-b227-493b45a4609c",
                 "Got correct ID from TinCan XML");
-            assert.equal(ujsTinCanObj.launchHREF, "ustad_contentepubrunner.html",
-                "got correct launch href");
-            donefn();
+            
+            //try making the launched activity definition
+            var launchDef = ujsTinCanObj.makeLaunchedActivityDefByLang("en");
+            assert.equal(launchDef.name.en, "Important Guide Name");
+            assert.equal(launchDef.description.en, "Important Guide");
+        
+            $.ajax("assets/tincan-multilang.xml", {
+                dataType : "text"
+            }).done(function(tcMlStr){
+                var ujsTinCanML = new UstadJSTinCanXML();
+                ujsTinCanML.loadFromXML(tcMlStr);
+                var activityElements = ujsTinCanML.xmlDoc.getElementsByTagName(
+                        "activity");
+                var launchableActivity = null;
+                for(var i = 0; i < activityElements.length; i++) {
+                    if(activityElements[i].getElementsByTagName("launch").length > 0) {
+                        launchableActivity = activityElements[i];
+                        break;
+                    }
+                }
+
+                //user language = fr, expect english result back (default)
+                var wantFREl = UstadJSTinCanXML.getElementByLang("launch", 
+                    launchableActivity, "fr");
+                assert.equal(wantFREl.getAttribute("lang"), "en", 
+                    "Fallback to english as default fallback lang");
+
+                //user language = fr, set German default lang, get german back
+                var wantFRThenDEEl = UstadJSTinCanXML.getElementByLang("launch", 
+                    launchableActivity, "fr", "de");
+                assert.equal(wantFRThenDEEl.getAttribute("lang"), "de",
+                    'Fallback to specified lang (de)');
+
+                //user language = en, default = en, get en back
+                var wantENEl = UstadJSTinCanXML.getElementByLang("launch", 
+                    launchableActivity, "en");
+                assert.equal(wantENEl.getAttribute("lang"),"en", 
+                    "Get English back when specified as user lang");
+                
+                //match against partial language
+                var langOnlyMatch = UstadJSTinCanXML.getElementByLang("launch",
+                    launchableActivity, "en-GB");
+                assert.equal(langOnlyMatch.getAttribute("lang"), "en",
+                    "Matches by language code only when needed");
+                
+                //will match user lang instead of default lang
+                var matchUserEl = UstadJSTinCanXML.getElementByLang("launch",
+                    launchableActivity, "de");
+                assert.equal(matchUserEl.getAttribute("lang"), "de",
+                    "Match user language first");
+                
+                //will return the first element when nothing is matchable
+                var firstElReturn = UstadJSTinCanXML.getElementByLang("launch",
+                    launchableActivity, "fr", "es");
+                assert.equal(firstElReturn.getAttribute("lang"), "en", 
+                    "return first element when nothing matchable");
+                
+                donefn();
+            });
         });
     });
 }

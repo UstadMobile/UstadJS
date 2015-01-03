@@ -164,10 +164,13 @@ UstadJSOPF.prototype = {
             this.spine.push(this.items[itemID]);
         }
         
-        //now load meta data: according to OPF spec there must be at least one title
+        //now load meta data: according to OPF spec there must be at least one title 
+        //and one identifier
         var manifestEl = this.xmlDoc.getElementsByTagName("metadata")[0];
         var titleEl = manifestEl.getElementsByTagNameNS("*", "title")[0];
+        var idEl = manifestEl.getElementsByTagNameNS("*", "identifier")[0];
         this.title = titleEl.textContent;
+        this.identifier = idEl.textContent;
     },
     
     /**
@@ -208,15 +211,71 @@ UstadJSTinCanXML = function() {
     //original XML source document
     this.xmlDoc = null;
     
-    //the launch activity ID
+    //the launch activity (TinCan.Activity)
+    this.launchActivity = null;
     this.launchActivityID = null;
     
-    //the HREF to launch according to this xml
-    this.launchHREF = null;
-    
+    //the launchable activity
+    this._launchActivityEl = null;
 };
 
+
+/**
+ * Figure out which element to use by language for an activity (e.g. launch, resource)
+ * 
+ * matches the user language, if not look for default language, otherwise use
+ * first occuring launch element
+ * 
+ * @param tagName {String} Tag name -e.g. launch or resource
+ * @param activityEl {Object} DOM node representing the activity element
+ * @param userLang {String} The language the user wants (e.g. UI Language)
+ * @param defaultLang {String} the system default fallback language (e.g. 
+ * 
+ * @returns {String} 
+ */
+UstadJSTinCanXML.getElementByLang = function(tagName, activityEl, userLang, defaultLang) {
+    var launchEls = activityEl.getElementsByTagName(tagName);
+    
+    if(!defaultLang) {
+        defaultLang = "en";
+    }
+    
+    var langsToMatch = [userLang, defaultLang];
+    var matchedNodes = [null, null];
+    var matchedStrs = [null, null];
+    
+    for(var i = 0; i < launchEls.length; i++) {
+        var thisLang = launchEls[i].getAttribute("lang");
+        if(thisLang) {
+            var thisLangLower = thisLang.toLowerCase();
+            for(var j = 0; j < langsToMatch.length; j++) {
+                if(thisLangLower === langsToMatch[j].toLowerCase()) {
+                    //full match of user string
+                    matchedNodes[j] = launchEls[i];
+                    matchedStrs[j] = thisLang;
+                }else if(!matchedNodes[j] && thisLangLower.substring(0, 2) === langsToMatch[j].substring(0, 2)) {
+                    //match first part of user string e.g. en-US instead of en-GB
+                    matchedNodes[j] = launchEls[i];
+                    matchedStrs[j] = thisLang.substring(0, 2);
+                }
+            }
+        }
+    }
+    
+    for(var h = 0; h < matchedNodes.length; h++) {
+        if(matchedNodes[h]) { 
+            return matchedNodes[h];
+        }
+    }
+    
+    //no match of user language or default - return the first launch element
+    return launchEls[0];
+};
+
+
+
 UstadJSTinCanXML.prototype = {
+    
     /**
      * 
      * @param {Object} tcXMLSrc String or xml document
@@ -233,13 +292,38 @@ UstadJSTinCanXML.prototype = {
         var activityElements = this.xmlDoc.getElementsByTagName("activity");
         for(var i = 0; i < activityElements.length; i++) {
             var launchEls = activityElements[i].getElementsByTagName("launch");
+            
             if(launchEls.length > 0) {
-                //found launch element
                 this.launchActivityID = activityElements[i].getAttribute("id");
-                this.launchHREF = launchEls[0].textContent;
+                this._launchActivityEl = activityElements[i];
                 break;
             }
         }
+    },
+    
+    /**
+     * Sets the launch activity info by language
+     * 
+     * @param {String} userLang user set language
+     * @param {String} defaultLang default fallback language (optional)
+     */
+    makeLaunchedActivityDefByLang: function(userLang, defaultLang) {
+        var launchNameEl = UstadJSTinCanXML.getElementByLang("name", 
+            this._launchActivityEl, userLang, defaultLang);
+        var descEl = UstadJSTinCanXML.getElementByLang("description",
+            this._launchActivityEl, userLang, defaultLang);
+        var launchLang = launchNameEl.getAttribute("lang");
+        
+        var myDefinition = {
+            type : "http://adlnet.gov/expapi/activities/lesson",
+            name : { },
+            description : { }
+    	};
+        
+        myDefinition.name[launchLang] = launchNameEl.textContent;
+        myDefinition.description[launchLang] = descEl.textContent;
+        
+        return myDefinition;
     }
 };
 
