@@ -63,7 +63,7 @@ function testUstadJSOpubFrameCreate() {
    
    
     QUnit.test("OPub Frame load", function(assert) {
-        assert.expect(5);
+        assert.expect(6);
         var donefn = assert.async();
         
         $("#test_opubframe").opubframe("option", "page_query_params",
@@ -88,6 +88,9 @@ function testUstadJSOpubFrameCreate() {
                 $("#test_opubframe").opubframe("option", "spine_pos") === 0,
                 "Spine at Pos 0");
             $("#test_opubframe").opubframe("go", 1, function(result) {
+                //get a title
+                var pgTitle = $("#test_opubframe").opubframe("currenttitle");
+                assert.ok(pgTitle, "Got a page title");
                 assert.ok(result === "success", 
                     "Going to next page returns success");
                 donefn();

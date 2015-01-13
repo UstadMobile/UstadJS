@@ -48,7 +48,8 @@ GNU General Public License for more details.
             "height" : "100%",
             "num_pages" : 0,
             //the query parameters to add (e.g. tincan params) 
-            "page_query_params": null
+            "page_query_params": null,
+            "pageloaded" : null
         },
         
         /**
@@ -92,7 +93,7 @@ GNU General Public License for more details.
         
         iframeLoadEvt: function(evt) {
             //figure out where we are relative to package.opf
-            var iframeSrc = evt.target.src;
+            var iframeSrc = evt.target.contentWindow.location.href;
             var relativeURL = iframeSrc.substring(iframeSrc.indexOf(
                     this.options.baseurl) + this.options.baseurl.length);
             relativeURL = UstadJS.removeQueryFromURL(relativeURL);
@@ -100,6 +101,7 @@ GNU General Public License for more details.
                     relativeURL);
             $(this.element).trigger("pageloaded", evt, {"relativeURL" :
                         relativeURL});
+            this._trigger("pageloaded", null, {"url" : relativeURL});
         },
         
         
@@ -180,6 +182,16 @@ GNU General Public License for more details.
             $(this.iframeElement).one("load", null, $.proxy(function() {
                         UstadJS.runCallback(callback, this, ["success"]);
                     }, this));
+        },
+        
+        currenttitle: function() {
+            var pgTitle = null;
+            var titleEls = this.iframeElement.contentDocument.getElementsByTagName("title");
+            if(titleEls.length > 0) {
+                pgTitle = titleEls[0].textContent;
+            }
+            
+            return pgTitle;
         }
     });
 }(jQuery));
