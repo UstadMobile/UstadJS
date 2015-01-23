@@ -44,7 +44,7 @@ QUnit.module("UstadJS-Core");
 
 function testOPDSFeed() {
     QUnit.test("Load and interpret opds feed", function(assert) {
-        assert.expect(1);
+        assert.expect(3);
         var opdsDoneFn = assert.async(1);
         
         $.ajax("assets/catalog1.opds", {
@@ -53,6 +53,17 @@ function testOPDSFeed() {
             var opdsObj = UstadJSOPDSFeed.parseFromDoc(opdsStr, 
                 "assets/catalog1.opds");
             assert.ok(opdsObj.title, "Found course title");
+            assert.ok(opdsObj.entries.length > 0, "OPDS catalog has entries");
+            
+            var missingLink = false;
+            for(var i = 0; i < opdsObj.entries.length; i++) {
+                var acquireLink = opdsObj.entries[i].getAcquisitionLinks(
+                        UstadJSOPDSEntry.LINK_ACQUIRE, "application/epub+zip",
+                        true);
+                missingLink = missingLink || !acquireLink;
+            }
+            assert.ok(!missingLink, "Found acquire link for all entries");
+            
             opdsDoneFn();
         });
     });

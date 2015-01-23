@@ -85,7 +85,11 @@
     <link rel="http://opds-spec.org/image"     
           href="/covers/11241.lrg.jpg"
           type="image/jpeg"/> 
- 
+    
+    <link rel="http://opds-spec.org/acquisition" 
+          href="/content/free/11241.epub"
+          type="application/epub+zip"/>
+    
     <link rel="http://opds-spec.org/acquisition/buy" 
           href="/content/buy/11241.epub"
           type="application/epub+zip">

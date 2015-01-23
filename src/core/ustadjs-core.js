@@ -156,25 +156,91 @@ UstadJSOPDSFeed.parseFromDoc = function(opdsSrc, src) {
     var entryNodes = opdsSrc.getElementsByTagNameNS(
             "http://www.w3.org/2005/Atom", "entry");
     
+    for(var i = 0; i < entryNodes.length; i++) {
+        var newEntry = new UstadJSOPDSEntry(entryNodes[i], this);
+        opdsFeedObj.entries.push(newEntry);
+    }
     
     return opdsFeedObj;
 };
 
-/*
+
 var UstadJSOPDSEntry = null;
 
-UstadJSOPDSEntry = function() {
+UstadJSOPDSEntry = function(xmlNode, parentFeed) {
     this.xmlNode = null;
     this.parentFeed = null;
-};
-
-UstadJSOPDSEntry.prototype = {
-    getAcquisitionLinks: function() {
-        
+    this.title = null;
+    this.id = null;
+    
+    if(parentFeed) {
+        this.parentFeed = parentFeed;
+    }
+    
+    if(xmlNode) {
+        this.loadFromXMLNode(xmlNode);
     }
 };
 
-*/
+/**
+ * OPDS constant for the standard acquisition link
+ * @type String
+ */
+UstadJSOPDSEntry.LINK_ACQUIRE = "http://opds-spec.org/acquisition";
+    
+/**
+ * OPDS constant for open access acquisition link
+ * @type String
+ */
+UstadJSOPDSEntry.LINK_ACQUIRE_OPENACCESS = "http://opds-spec.org/acquisition/open-access";
+    
+
+UstadJSOPDSEntry.prototype = {
+    
+    
+    /**
+     * Get the aquisition links by 
+     * @param {String} linkRel - the link relation desired - e.g. 
+     *  http://opds-spec.org/acquisition/open-access or 
+     *  http://opds-spec.org/acquisition/
+     * @param {String} mimeType the desired content mimetype e.g. application/epub+zip
+     * @param {boolean} fallback if the desired acquisition type is not available,
+     *  should we return plain old http://opds-spec.org/acquisition
+     * @returns {String} the href of the selected link, null if nothing found
+     */
+    getAcquisitionLinks: function(linkRel, mimeType, fallback) {
+        var linkElements = this.xmlNode.getElementsByTagNameNS(
+            "http://www.w3.org/2005/Atom", "link");
+        var fallbackEl = null;
+        for(var i = 0; i < linkElements.length; i++) {
+            if(linkElements[i].getAttribute("type") === mimeType) {
+                var linkElType = linkElements[i].getAttribute("rel");
+                if(linkElType === linkRel) {
+                    return linkElements[i].getAttribute("href");
+                }
+                
+                if(linkElType === UstadJSOPDSEntry.UstadJSOPDSEntry && fallback) {
+                    fallbackEl = linkElements[i];
+                }
+            }
+        }
+        
+        if(fallbackEl) {
+            return fallbackEl.getAttribute("href");
+        }else {
+            return null;
+        }
+    },
+    
+    loadFromXMLNode: function(xmlNode) {
+        this.xmlNode = xmlNode;
+        this.title = xmlNode.querySelector("title").textContent;
+        this.id = xmlNode.querySelector("id").textContent;
+    }
+    
+};
+
+
 
 /*
 var UstadJSContainer = null;
