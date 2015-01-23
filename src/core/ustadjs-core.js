@@ -35,6 +35,22 @@ var UstadJS;
 UstadJS = {
     
     /**
+     * Make sure that the given src (which may be an xml doc or string) is returned
+     * as an xml doc.  If it's a string, parse it into XML
+     * 
+     * @param {Object} src String or XMLDocument
+     * @returns {Document} XML document of the given src
+     */
+    ensureXML: function(src) {
+        if(typeof src === "string") {
+            var parser = new DOMParser();
+            src = parser.parseFromString(src, "text/xml");
+        }
+        
+        return src;
+    },
+    
+    /**
      * Get a JSON list of 
      * 
      * @param src {Object} XML string or XMLDocument object.  Will be parsed if String
@@ -43,10 +59,7 @@ UstadJS = {
      * each with full-path and media-type attributes
      */
     getContainerRootfilesFromXML: function(src) {
-        if(typeof src === "string") {
-            var parser = new DOMParser();
-            src = parser.parseFromString(src, "text/xml");
-        }
+        src = UstadJS.ensureXML(src);
         var retVal = [];
         var rootFileNodes = src.getElementsByTagName("rootfile");
         for(var i = 0; i < rootFileNodes.length; i++) {
@@ -110,6 +123,71 @@ UstadJS = {
         }
     },
 };
+
+var UstadJSOPDSFeed = null;
+
+UstadJSOPDSFeed = function() {
+    this.entries = [];
+    this.title = "";
+    this.id = "";
+    this.xmlDoc = null;
+    this.src = null;
+};
+
+/**
+ * From the given source document make an object representing an OPDS feed
+ * 
+ * @param {Object} opdsSrc String or XML Document with the opds feed
+ * @param {String} src URL of the opdsSrc
+ * @returns {UstadJSOPDSFeed}
+ */
+UstadJSOPDSFeed.parseFromDoc = function(opdsSrc, src) {
+    opdsSrc = UstadJS.ensureXML(opdsSrc);
+    var opdsFeedObj = new UstadJSOPDSFeed();
+    opdsFeedObj.xmlDoc = opdsSrc;
+    
+    //set title
+    opdsFeedObj.title = opdsSrc.querySelector("feed > title").textContent;
+            
+    opdsFeedObj.id = opdsSrc.querySelector("feed > id").textContent;
+    opdsFeedObj.src = src;
+    
+    //now go through all entries
+    var entryNodes = opdsSrc.getElementsByTagNameNS(
+            "http://www.w3.org/2005/Atom", "entry");
+    
+    
+    return opdsFeedObj;
+};
+
+/*
+var UstadJSOPDSEntry = null;
+
+UstadJSOPDSEntry = function() {
+    this.xmlNode = null;
+    this.parentFeed = null;
+};
+
+UstadJSOPDSEntry.prototype = {
+    getAcquisitionLinks: function() {
+        
+    }
+};
+
+*/
+
+/*
+var UstadJSContainer = null;
+
+UstadJSContainer = function() {
+    this.publications = [];
+    this.xmlDoc = null;
+    this.uri = null;
+    
+};
+
+*/
+
 
 var UstadJSOPF = null;
 

@@ -39,7 +39,25 @@ QUnit.module("UstadJS-Core");
     testURLQueryRemoval();
     testAbsoluteURLs();
     testTinCanXML();
+    testOPDSFeed();
 }());
+
+function testOPDSFeed() {
+    QUnit.test("Load and interpret opds feed", function(assert) {
+        assert.expect(1);
+        var opdsDoneFn = assert.async(1);
+        
+        $.ajax("assets/catalog1.opds", {
+            dataType  : "text"
+        }).done(function(opdsStr){
+            var opdsObj = UstadJSOPDSFeed.parseFromDoc(opdsStr, 
+                "assets/catalog1.opds");
+            assert.ok(opdsObj.title, "Found course title");
+            opdsDoneFn();
+        });
+    });
+    
+}
 
 function testTinCanXML() {
     QUnit.test("Load and interpret TinCanXML", function(assert) {
