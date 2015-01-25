@@ -126,42 +126,75 @@ UstadJS = {
 
 var UstadJSOPDSFeed = null;
 
-UstadJSOPDSFeed = function() {
+UstadJSOPDSFeed = function(title, id) {
     this.entries = [];
-    this.title = "";
-    this.id = "";
-    this.xmlDoc = null;
-    this.src = null;
+    this.xmlDoc = document.implementation.createDocument(
+            "http://www.w3.org/2005/Atom", "feed");
+        
+    var idEl = this.xmlDoc.createElementNS("http://www.w3.org/2005/Atom", "id");
+    idEl.textContent = id;
+    this.xmlDoc.documentElement.appendChild(idEl);
+    
+    var titleEl = this.xmlDoc.createElementNS("http://www.w3.org/2005/Atom", 
+        "title");
+    titleEl.textContent = title;
+    this.xmlDoc.documentElement.appendChild(titleEl);
+    
+    this.href = null;
 };
 
 /**
  * From the given source document make an object representing an OPDS feed
  * 
- * @param {Object} opdsSrc String or XML Document with the opds feed
- * @param {String} src URL of the opdsSrc
+ * @param {Object} xmlSrc String or XML Document with the opds feed
+ * @param {String} href URL of the opdsSrc
  * @returns {UstadJSOPDSFeed}
  */
-UstadJSOPDSFeed.parseFromDoc = function(opdsSrc, src) {
-    opdsSrc = UstadJS.ensureXML(opdsSrc);
+UstadJSOPDSFeed.loadFromXML = function(xmlSrc, href) {
+    xmlSrc = UstadJS.ensureXML(xmlSrc);
     var opdsFeedObj = new UstadJSOPDSFeed();
-    opdsFeedObj.xmlDoc = opdsSrc;
+    opdsFeedObj.xmlDoc = xmlSrc;
+    opdsFeedObj.href = href;
     
-    //set title
-    opdsFeedObj.title = opdsSrc.querySelector("feed > title").textContent;
-            
-    opdsFeedObj.id = opdsSrc.querySelector("feed > id").textContent;
-    opdsFeedObj.src = src;
-    
-    //now go through all entries
-    var entryNodes = opdsSrc.getElementsByTagNameNS(
-            "http://www.w3.org/2005/Atom", "entry");
-    
-    for(var i = 0; i < entryNodes.length; i++) {
-        var newEntry = new UstadJSOPDSEntry(entryNodes[i], this);
-        opdsFeedObj.entries.push(newEntry);
-    }
+    //set properties up
+    opdsFeedObj.setPropsFromXML(xmlSrc);
     
     return opdsFeedObj;
+};
+
+
+UstadJSOPDSFeed.prototype = {
+    
+    setPropsFromXML: function(xmlSrc) {
+        xmlSrc = xmlSrc ? xmlSrc : this.xmlDoc;
+        
+        this.title = xmlSrc.querySelector("feed > title").textContent;
+        this.id = xmlSrc.querySelector("feed > id").textContent;
+        
+        //now go through all entries
+        var entryNodes = xmlSrc.getElementsByTagNameNS(
+                "http://www.w3.org/2005/Atom", "entry");
+        
+        this.entries = [];
+        
+        for(var i = 0; i < entryNodes.length; i++) {
+            var newEntry = new UstadJSOPDSEntry(entryNodes[i], this);
+            this.entries.push(newEntry);
+        }
+    },
+    
+    /**
+     * Add an opds entry to this feed
+     * 
+     * @param {UstadJSOPDSEntry} opdsEntry the entry to add
+     */
+    addEntry: function(opdsEntry) {
+        this.entries.push(opdsEntry);
+        var entryNodeCopy = this.xmlDoc.importNode(opdsEntry.xmlNode, true);
+        this.xmlDoc.documentElement.appendChild(entryNodeCopy);
+        entryNodeCopy.namespaceURI = "http://www.w3.org/2005/Atom";
+        var x = 0;
+    }
 };
 
 
@@ -209,6 +242,10 @@ UstadJSOPDSEntry.prototype = {
      * @returns {String} the href of the selected link, null if nothing found
      */
     getAcquisitionLinks: function(linkRel, mimeType, fallback) {
+        //TODO: Should enforce namespace - this does not appear to work when 
+        //using createDocument based stuff
+        //var linkElements = this.xmlNode.getElementsByTagNameNS(
+        //    "http://www.w3.org/2005/Atom", "link");
         var linkElements = this.xmlNode.getElementsByTagNameNS(
             "http://www.w3.org/2005/Atom", "link");
         var fallbackEl = null;
@@ -315,6 +352,58 @@ UstadJSOPF.prototype = {
         var idEl = manifestEl.getElementsByTagNameNS("*", "identifier")[0];
         this.title = titleEl.textContent;
         this.identifier = idEl.textContent;
+    },
+    
+    /**
+     * For this OPF generate a catalog entry node that can be included
+     * in an OPDS feed
+     * 
+     * @param {Object} acquisitionOpts options for acquisitionLink containing:
+     *   href : e.g. /somewhere/file.epub
+     *   mime : e.g. application/epub+zip
+     *   rel : e.g. http://opds-spec.org/acquisition/open-access (defaults to
+     *    http://opds-spec.org/acquisition )
+     *   
+     * @param {UstadJSOPDSFeed} parentFeed - document object to use for purpose of creating
+     *   DOM nodes 
+     * 
+     * @returns {undefined}
+     */
+    getOPDSEntry: function(acquisitionOpts, parentFeed) {
+        var doc = parentFeed.xmlDoc;
+        
+        var entryNode = doc.createElementNS("http://www.w3.org/2005/Atom", 
+            "entry");
+        
+        var titleNode = doc.createElementNS("http://www.w3.org/2005/Atom", 
+            "title");
+        titleNode.textContent = this.title;
+        entryNode.appendChild(titleNode);
+        
+        var idNode = doc.createElementNS("http://www.w3.org/2005/Atom", "id");
+        idNode.textContent = this.identifier;
+        entryNode.appendChild(idNode);
+        
+        
+        //find metadata - mandatory in an opf file
+        var metaDataNode = this.xmlDoc.getElementsByTagName("*", "metadata")[0];
+        for(var i = 0; i < metaDataNode.childNodes.length; i++) {
+            var clonedNode = doc.importNode(metaDataNode.childNodes[i], true);
+            entryNode.appendChild(clonedNode);
+        }
+        
+        
+        //TODO: add acquisition links
+        var linkNode = doc.createElementNS("http://www.w3.org/2005/Atom", 
+            "link");
+        linkNode.setAttribute("href", acquisitionOpts.href);
+        linkNode.setAttribute("type", acquisitionOpts.mime);
+        linkNode.setAttribute("rel", acquisitionOpts.rel ?
+            acquisitionOpts.rel : UstadJSOPDSEntry.LINK_ACQUIRE);
+        entryNode.appendChild(linkNode);
+        
+        var opdsEntry = new UstadJSOPDSEntry(entryNode, parentFeed);
+        return opdsEntry;
     },
     
     /**

@@ -34,23 +34,29 @@ QUnit.module("UstadJS-Core");
 
 (function() {
     testUstadJSGetContainer();
-    testUstadJSLoadOPF();
+    
+    
+    
     testRunCallback();
+    
     testURLQueryRemoval();
     testAbsoluteURLs();
+    
     testTinCanXML();
     testOPDSFeed();
+    testUstadJSLoadOPF();
+    
 }());
 
 function testOPDSFeed() {
     QUnit.test("Load and interpret opds feed", function(assert) {
-        assert.expect(3);
+        assert.expect(4);
         var opdsDoneFn = assert.async(1);
         
         $.ajax("assets/catalog1.opds", {
             dataType  : "text"
         }).done(function(opdsStr){
-            var opdsObj = UstadJSOPDSFeed.parseFromDoc(opdsStr, 
+            var opdsObj = UstadJSOPDSFeed.loadFromXML(opdsStr, 
                 "assets/catalog1.opds");
             assert.ok(opdsObj.title, "Found course title");
             assert.ok(opdsObj.entries.length > 0, "OPDS catalog has entries");
@@ -64,7 +70,24 @@ function testOPDSFeed() {
             }
             assert.ok(!missingLink, "Found acquire link for all entries");
             
-            opdsDoneFn();
+            //test adding an entry
+            $.ajax("assets/package.opf", {
+                dataType : "text"
+            }).done(function (opfStr) {
+                var ustadOPFObj = new UstadJSOPF();
+                ustadOPFObj.loadFromOPF(opfStr);
+                var newEntry = ustadOPFObj.getOPDSEntry({
+                    mime: "application/zip+epub",
+                    href: "assets/somewhere.epub"
+                }, opdsObj);
+                var numEntries = opdsObj.entries.length;
+                opdsObj.addEntry(newEntry);
+                assert.equal(numEntries+1, opdsObj.entries.length,
+                    "New OPDS entry added to feed");
+                opdsDoneFn();
+            });
+            
+            
         });
     });
     
@@ -73,7 +96,7 @@ function testOPDSFeed() {
 function testTinCanXML() {
     QUnit.test("Load and interpret TinCanXML", function(assert) {
         assert.expect(9);
-        var donefn = assert.async();
+        var tcDonefn = assert.async();
         
         $.ajax("assets/tincan.xml", {
             dataType  : "text"
@@ -140,7 +163,7 @@ function testTinCanXML() {
                 assert.equal(firstElReturn.getAttribute("lang"), "en", 
                     "return first element when nothing matchable");
                 
-                donefn();
+                tcDonefn();
             });
         });
     });
@@ -204,21 +227,27 @@ function testUstadJSGetContainer() {
 function testUstadJSLoadOPF() {
     QUnit.test("Load OPF", function(assert) {
         assert.expect(5);
-        var donefn = assert.async();
-        
+        var opfDonefn = assert.async();
+        console.log("start opf test");
         $.ajax("assets/package.opf", {
             dataType  : "text"
         }).done(function(opfStr){
+            console.log("loaded opf asset");
             var jsOPF = new UstadJSOPF();
             jsOPF.loadFromOPF(opfStr);
             var itemCount = 0;
+            console.log("made jsopf object");
             for(var prop in jsOPF) {
                 if(jsOPF.hasOwnProperty(prop)) {
                     itemCount++;
                 }
             }
             assert.ok(itemCount, "Counted items");
+            console.log("counted items");
             assert.ok(jsOPF.spine.length > 0, "OPF has spine");
+            console.log("opf has spine");
+            
+            
             var coverIndex = jsOPF.getSpinePositionByHref("cover.xhtml");
             assert.ok(coverIndex === 0, "Spine has cover at index 0");
             assert.ok(jsOPF.getSpinePositionByHref(
@@ -226,7 +255,8 @@ function testUstadJSLoadOPF() {
                 "Spine does not have file returns -1");
             assert.ok(jsOPF.title === "Bob epub", 
                 "Spine loads title: Bob epub");
-            donefn();
+            console.log("done with opf tests");
+            opfDonefn();
         });
     });
 }
