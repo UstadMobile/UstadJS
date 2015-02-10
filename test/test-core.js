@@ -50,7 +50,7 @@ QUnit.module("UstadJS-Core");
 
 function testOPDSFeed() {
     QUnit.test("Load and interpret opds feed", function(assert) {
-        assert.expect(4);
+        assert.expect(5);
         var opdsDoneFn = assert.async(1);
         
         $.ajax("assets/catalog1.opds", {
@@ -77,13 +77,19 @@ function testOPDSFeed() {
                 var ustadOPFObj = new UstadJSOPF();
                 ustadOPFObj.loadFromOPF(opfStr);
                 var newEntry = ustadOPFObj.getOPDSEntry({
-                    mime: "application/zip+epub",
+                    mime: "application/epub+zip",
                     href: "assets/somewhere.epub"
                 }, opdsObj);
                 var numEntries = opdsObj.entries.length;
                 opdsObj.addEntry(newEntry);
                 assert.equal(numEntries+1, opdsObj.entries.length,
                     "New OPDS entry added to feed");
+                
+                var matchingLinkSearchResult = opdsObj.getEntriesByLinkParams(
+                        "application/epub+zip", UstadJSOPDSEntry.LINK_ACQUIRE, true);
+                var numMatchingEntries = matchingLinkSearchResult.length;
+                assert.ok(numMatchingEntries >= 1,  
+                    "Found " + numMatchingEntries + " entries");
                 opdsDoneFn();
             });
             

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg2"
+   sodipodi:docname="default-acquire-icon.svg"
+   viewBox="0 0 230 300"
+   version="1.1"
+   inkscape:version="0.48.5 r10040"
+   width="100%"
+   height="100%"
+   inkscape:export-filename="/home/mike/NetBeansProjects/UstadJS/public_html/src/img/default-acquire-icon.png"
+   inkscape:export-xdpi="32.034897"
+   inkscape:export-ydpi="32.034897">
+  <defs
+     id="defs3301" />
+  <title
+     id="title3861">Exercise Book</title>
+  <sodipodi:namedview
+     id="base"
+     bordercolor="#666666"
+     inkscape:pageshadow="2"
+     inkscape:window-y="24"
+     pagecolor="#ffffff"
+     inkscape:window-height="744"
+     inkscape:window-maximized="1"
+     inkscape:zoom="0.7"
+     inkscape:window-x="61"
+     showgrid="false"
+     borderopacity="1.0"
+     inkscape:current-layer="layer1"
+     inkscape:cx="31.83243"
+     inkscape:cy="128.57864"
+     inkscape:window-width="1305"
+     inkscape:pageopacity="0.0"
+     inkscape:document-units="px" />
+  <g
+     id="layer1"
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     transform="translate(0 -752.36)">
+    <g
+       id="g4076">
+      <rect
+         id="rect2993"
+         style="stroke-linejoin:round;stroke:#000000;stroke-linecap:round;stroke-width:3.5433;fill:#8e1818"
+         transform="matrix(.99963 -.027080 .027080 .99963 0 0)"
+         height="266.04"
+         width="198.03"
+         y="767.92"
+         x="-7.5172" />
+      <path
+         id="rect2993-3-8-1"
+         d="m13.281 768.1 193.96 0.13812 7.2045 265.94-193.96-0.1381z"
+         sodipodi:nodetypes="ccccc"
+         style="stroke-linejoin:round;stroke:#c3c3c3;stroke-linecap:round;fill:#ffffff"
+         inkscape:connector-curvature="0" />
+      <path
+         id="rect2993-3-8-0"
+         d="m12.281 769.6 192.46 0.20939 7.5616 265.94-192.81-0.2093z"
+         sodipodi:nodetypes="ccccc"
+         style="stroke-linejoin:round;stroke:#c3c3c3;stroke-linecap:round;fill:#ffffff"
+         inkscape:connector-curvature="0" />
+      <path
+         id="rect2993-3-8"
+         d="m11.281 770.1 190.96 1.1383 7.2045 265.94-190.96-1.1383z"
+         sodipodi:nodetypes="ccccc"
+         style="stroke-linejoin:round;stroke:#c3c3c3;stroke-linecap:round;fill:#ffffff"
+         inkscape:connector-curvature="0" />
+      <path
+         id="rect2993-3"
+         d="m12.179 767.37 186.88 2.6385 7.2045 269.87-189.03-4.5668z"
+         sodipodi:nodetypes="ccccc"
+         style="stroke-linejoin:round;stroke:#000000;stroke-linecap:round;stroke-width:3.543;fill:#c62020"
+         inkscape:connector-curvature="0" />
+      <path
+         id="rect3825"
+         d="m77.624 803.51c17.753 0.1667 34.791 0.33338 53.258-0.21422 21.798-0.14273 26.517-3.6667 27.004 17.949l0.75011 33.255c1.4603 19.352-6.9598 16.489-26.129 16.127-18.859-0.26357-36.645-0.42775-53.365-0.28586-21.544-0.0488-25.996 0.52216-26.647-17.592-0.33339-10.918-0.66677-21.837-1.0002-32.755-0.94649-19.179 7.1698-16.663 26.129-16.485z"
+         sodipodi:nodetypes="ccccccccc"
+         style="stroke-linejoin:round;stroke:#696969;stroke-linecap:round;stroke-width:2;fill:#ffffff"
+         inkscape:connector-curvature="0" />
+      <path
+         id="path3830"
+         d="m64.711 824.98 80.656 0.64301"
+         sodipodi:nodetypes="cc"
+         style="stroke:#000000;stroke-width:1px;fill:none"
+         inkscape:connector-curvature="0" />
+      <path
+         id="path3832"
+         d="m64.068 840.06 80.798 0.57173"
+         sodipodi:nodetypes="cc"
+         style="stroke:#000000;stroke-width:1px;fill:none"
+         inkscape:connector-curvature="0" />
+      <path
+         id="path3834"
+         d="m64.64 853.91 80.726 0.71467"
+         sodipodi:nodetypes="cc"
+         style="stroke:#000000;stroke-width:1px;fill:none"
+         inkscape:connector-curvature="0" />
+    </g>
+  </g>
+  <metadata
+     id="metadata3299">
+    <rdf:RDF>
+      <cc:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/publicdomain/" />
+        <dc:publisher>
+          <cc:Agent
+             rdf:about="http://openclipart.org/">
+            <dc:title>Openclipart</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:title>Exercise Book</dc:title>
+        <dc:date>2013-03-10T05:18:47</dc:date>
+        <dc:description>A exercise book</dc:description>
+        <dc:source>https://openclipart.org/detail/175643/exercise-book-by-frankes-175643</dc:source>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>frankes</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>Heft</rdf:li>
+            <rdf:li>Schule</rdf:li>
+            <rdf:li>boolets</rdf:li>
+            <rdf:li>education</rdf:li>
+            <rdf:li>exercise book</rdf:li>
+            <rdf:li>school</rdf:li>
+            <rdf:li>unterricht</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/publicdomain/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+</svg>

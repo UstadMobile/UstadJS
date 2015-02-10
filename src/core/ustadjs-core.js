@@ -193,7 +193,37 @@ UstadJSOPDSFeed.prototype = {
         var entryNodeCopy = this.xmlDoc.importNode(opdsEntry.xmlNode, true);
         this.xmlDoc.documentElement.appendChild(entryNodeCopy);
         entryNodeCopy.namespaceURI = "http://www.w3.org/2005/Atom";
-        var x = 0;
+    },
+    
+    /**
+     * Get the entries in this feed according to the link type being looked
+     * for e.g. get entries that are navigation catalogs by using:
+     * 
+     * getEntriesByLinkType("application/atom+xml;profile=opds-catalog;kind=acquisition")
+     * 
+     * 
+     * @param {string} linkType type of link to look for (required)
+     * @param {string} linkRel relationship of link to look for e.g. 
+     * http://opds-spec.org/acquisition
+     * @param {boolean=true} linkRelFallback if false match the exact type, otherwise settle for
+     * substring match.  Eg. just http://opds-spec.org/acquisition will match
+     * all other acquisition types
+     * 
+     * @returns {UstadJSOPDSEntry[]}
+     */
+    getEntriesByLinkParams: function(linkType, linkRel, linkRelFallback) {
+        var matchingEntries = [];
+        linkRelFallback = (typeof linkRelFallback === "undefined") ? true :
+                linkRelFallback;
+        for(var i = 0; i < this.entries.length; i++) {
+            var acquireLink = this.entries[i].getAcquisitionLinks(linkRel,
+                linkType, linkRelFallback);
+            if(acquireLink) {
+                matchingEntries.push(this.entries[i]);
+            }
+        }
+        
+        return matchingEntries;
     }
 };
 
@@ -225,8 +255,32 @@ UstadJSOPDSEntry.LINK_ACQUIRE = "http://opds-spec.org/acquisition";
  * OPDS constant for open access acquisition link
  * @type String
  */
-UstadJSOPDSEntry.LINK_ACQUIRE_OPENACCESS = "http://opds-spec.org/acquisition/open-access";
-    
+UstadJSOPDSEntry.LINK_ACQUIRE_OPENACCESS = 
+        "http://opds-spec.org/acquisition/open-access";
+
+/**
+ * Type to be used for a catalog link of an acquisition feed as per OPDS spec
+ * 
+ * @type String
+ */
+UstadJSOPDSEntry.TYPE_ACQUISITIONFEED = 
+        "application/atom+xml;profile=opds-catalog;kind=acquisition";
+
+
+/**
+ * Type to be used for a navigation feed as per OPDS spec
+ * 
+ * @type String
+ */
+UstadJSOPDSEntry.TYPE_NAVIGATIONFEED =
+        "application/atom+xml;profile=opds-catalog;kind=navigation";
+
+/**
+ * The type of link used for an epub file itself
+ * 
+ * @type String
+ */
+UstadJSOPDSEntry.TYPE_EPUBCONTAINER = "application/epub+zip";
 
 UstadJSOPDSEntry.prototype = {
     
@@ -256,7 +310,7 @@ UstadJSOPDSEntry.prototype = {
                     return linkElements[i].getAttribute("href");
                 }
                 
-                if(linkElType === UstadJSOPDSEntry.UstadJSOPDSEntry && fallback) {
+                if(linkElType === UstadJSOPDSEntry.LINK_ACQUIRE && fallback) {
                     fallbackEl = linkElements[i];
                 }
             }
