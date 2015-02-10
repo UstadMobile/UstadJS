@@ -31,6 +31,12 @@ GNU General Public License for more details.
 
  */
 
+var $UstadJSOPDSBrowser = {};
+
+$UstadJSOPDSBrowser.STATUS_UNKNOWN = "unknown";
+$UstadJSOPDSBrowser.NOT_ACQUIRED = "notacquired";
+$UstadJSOPDSBrowser.ACQUISITION_IN_PROGRESS = "inprogress";
+$UstadJSOPDSBrowser.ACQUIRED = "acquired";
 
 (function($){
     /**
@@ -73,7 +79,31 @@ GNU General Public License for more details.
              * 
              * @type {function}
              */
-            acquisitionfeedselected: null
+            acquisitionfeedselected: null,
+            
+            /**
+             * A function that should return whether or not the given device id
+             * has been acquired
+             * 
+             * @returns {boolean}
+             */
+            acquisitionstatushandler: function(id) {
+                return $UstadJSOPDSBrowser.NOT_ACQUIRED;
+            },
+            
+            button_text_navigation: {
+                "unknown" : "Checking...",
+                "notacquired" : "Open",
+                "inprogress" : "Open",
+                "acquired" : "Open"
+            },
+            
+            button_text_acquisition: {
+                "unknown" : "Checking...",
+                "notacquired" : "Download",
+                "inprogress" : "Downloading...",
+                "acquired" : "Open"
+            }
             
         },
         
@@ -126,13 +156,45 @@ GNU General Public License for more details.
                 
                 var feedList = opdsSrc.getEntriesByLinkParams(
                     feedInfo[f].linkType,
-                    UstadJSOPDSEntry.LINK_ACQUIRE);
+                    null);
                 for(var e = 0; e < feedList.length; e++) {
                     var elEntry = this._makeFeedElement(feedList[e],
                         feedType);
                     feedElContainer.append(elEntry);
                 }
             }
+        },
+        
+        /**
+         * Make the status area for a feed element being shown
+         * 
+         * @param {string} entryId The entry we are making a 
+         * @param {string} feedType "navigation" or "acquisition"
+         * @param {string} elStatus String as per $UstadJSOPDSBrowser constants
+         * @param {Object} statusInfo if status is in progress have .progress as num between 0 and 100
+         * @returns {jQuery|$} element for the feed status area
+         */
+        _makeFeedElementStatusArea: function(entryId, feedType, elStatus, statusInfo) {
+            var statusClassName = "umjs_opdsbrowser_elstatus_" + elStatus;
+            
+            var elStatusArea = $("<div/>", {
+                "class": "umjs_opdsbrowser_" + feedType + "statusarea" +
+                    " " + statusClassName
+            });
+            
+            if(elStatus === $UstadJSOPDSBrowser.ACQUISITION_IN_PROGRESS) {
+                var progressBar = $("<progress/>",{
+                    "value" : statusInfo.progress,
+                    "max" : 100
+                });
+                
+                elStatusArea.append(progressBar);
+            }else {
+                var buttonText = this.options["button_text_" + feedType][elStatus];
+                elStatusArea.append("<button>"+buttonText+"</button>");
+            }
+            
+            return elStatusArea;
         },
         
         /**
@@ -149,11 +211,19 @@ GNU General Public License for more details.
                 "data-feed-id" : entry.id,
                 "data-feed-type" : feedType
             });
+           
+            var widgetObj = this;
+            elEntry.on("click", function(evt) {
+                var clickedFeedId = $(this).attr("data-feed-id");
+                var clickedFeedType = $(this).attr("data-feed-type");
+                var evtName = clickedFeedType + "feedselected";
+                widgetObj._trigger(evtName, evt, {
+                    feedId : clickedFeedId,
+                    feedType : clickedFeedType
+                });
+            });
             
-            elEntry.on("click", $.proxy(function(evt) {
-                console.log("Click on " + evt.srcElement);
-            }, this));
-            
+           
             //TODO: check the picture here
             var imgSrc = this.options["defaulticon_" + feedType + "feed"];
             
@@ -167,6 +237,12 @@ GNU General Public License for more details.
             });
             elTitleEntry.text(entry.title);
             elEntry.append(elTitleEntry);
+            
+            var elStatus = this.options.acquisitionstatushandler(entry.id, 
+                feedType);
+            elEntry.append(this._makeFeedElementStatusArea(entry.id, feedType,
+                elStatus));
+            
             
             return elEntry;
         },

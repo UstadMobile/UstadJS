@@ -224,6 +224,15 @@ UstadJSOPDSFeed.prototype = {
         }
         
         return matchingEntries;
+    },
+    
+    /**
+     * Serialize this opds feed as an XML string
+     * 
+     * @returns {string} XML of this feed as a string
+     */
+    toString: function() {
+        return new XMLSerializer().serializeToString(this.xmlDoc);
     }
 };
 
@@ -290,6 +299,8 @@ UstadJSOPDSEntry.prototype = {
      * @param {String} linkRel - the link relation desired - e.g. 
      *  http://opds-spec.org/acquisition/open-access or 
      *  http://opds-spec.org/acquisition/
+     *  Can be null to match any
+     *  
      * @param {String} mimeType the desired content mimetype e.g. application/epub+zip
      * @param {boolean} fallback if the desired acquisition type is not available,
      *  should we return plain old http://opds-spec.org/acquisition
@@ -306,7 +317,7 @@ UstadJSOPDSEntry.prototype = {
         for(var i = 0; i < linkElements.length; i++) {
             if(linkElements[i].getAttribute("type") === mimeType) {
                 var linkElType = linkElements[i].getAttribute("rel");
-                if(linkElType === linkRel) {
+                if(linkRel === null || linkElType === linkRel) {
                     return linkElements[i].getAttribute("href");
                 }
                 

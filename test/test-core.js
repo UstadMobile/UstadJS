@@ -50,7 +50,7 @@ QUnit.module("UstadJS-Core");
 
 function testOPDSFeed() {
     QUnit.test("Load and interpret opds feed", function(assert) {
-        assert.expect(5);
+        assert.expect(8);
         var opdsDoneFn = assert.async(1);
         
         $.ajax("assets/catalog1.opds", {
@@ -60,6 +60,16 @@ function testOPDSFeed() {
                 "assets/catalog1.opds");
             assert.ok(opdsObj.title, "Found course title");
             assert.ok(opdsObj.entries.length > 0, "OPDS catalog has entries");
+            
+            var asString = opdsObj.toString();
+            var opdsObj2 = UstadJSOPDSFeed.loadFromXML(asString, 
+                "assets/catalog1.opds");
+            assert.ok(opdsObj2.title === opdsObj.title, 
+                "Title same on load from string");
+            assert.ok(opdsObj2.id === opdsObj.id,
+                "ID same on loaded from string");
+            assert.ok(opdsObj2.entries.length === opdsObj2.entries.length,
+                "Same number of entries");
             
             var missingLink = false;
             for(var i = 0; i < opdsObj.entries.length; i++) {

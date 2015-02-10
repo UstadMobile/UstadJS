@@ -40,7 +40,7 @@ function testUstadJSOPDSBrowser() {
  */
 function testUstadJSOPDSBrowserFromObj(opdsObj, assert, donefn, itemSelector) {
     assert.expect(3);
-    assert.ok($("#test_opdsbrowser").hasClass("umjs_opdsbrowser"));
+    assert.ok($(itemSelector).hasClass("umjs_opdsbrowser"));
     $(itemSelector).opdsbrowser("setupfromfeed", opdsObj);
     assert.ok($(itemSelector).opdsbrowser("option", "_opdsFeedObj") === opdsObj,
         "OPDS Object is loaded");
@@ -48,6 +48,12 @@ function testUstadJSOPDSBrowserFromObj(opdsObj, assert, donefn, itemSelector) {
     var setTitle = $(itemSelector).children(".umjs_opdsbrowser_title").text();
     assert.ok(setTitle === opdsObj.title, "Title correctly set");
     
-    donefn();
+    $(itemSelector).opdsbrowser("option", "acquisitionfeedselected", function() {
+        donefn();
+    });
+    
+    $(itemSelector + " .umjs_opdsbrowser_acquisitionfeed_element").first().trigger("click");
+    
+    
 }
 
