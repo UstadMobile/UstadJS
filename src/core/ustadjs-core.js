@@ -124,7 +124,7 @@ UstadJS.getDirPath = function(completePath) {
     }
     
     return completePath.substring(0, completePath.lastIndexOf("/"));
-}
+};
 
 UstadJS.resolveURL = function(baseURL, linkedURL) {
     var linkedURLLower = linkedURL.toLowerCase();
@@ -134,8 +134,8 @@ UstadJS.resolveURL = function(baseURL, linkedURL) {
     
     if(linkedURL.substring(0, 2) === "//") {
         //this means match the protocol only
-        var resolvedURL = baseURL.substring(0, baseURL.indexOf(":")+1)
-            + linkedURL;
+        var resolvedURL = baseURL.substring(0, baseURL.indexOf(":")+1) +
+            linkedURL;
         return resolvedURL;
     }
     
@@ -162,7 +162,7 @@ UstadJS.resolveURL = function(baseURL, linkedURL) {
         if(linkParts[i] === '..') {
             baseParts.pop();
         }else {
-            baseParts.push(linkParts[i])
+            baseParts.push(linkParts[i]);
         }
     }
     
