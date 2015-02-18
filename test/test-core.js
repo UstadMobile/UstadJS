@@ -35,7 +35,7 @@ QUnit.module("UstadJS-Core");
 (function() {
     testUstadJSGetContainer();
     
-    
+    testPathResolver();
     
     testRunCallback();
     
@@ -48,9 +48,37 @@ QUnit.module("UstadJS-Core");
     
 }());
 
+function testPathResolver() {
+    QUnit.test("test path resolver outcomes", function(assert) {
+        assert.expect(7);
+        assert.equal(UstadJS.resolveURL("http://www.bbc.co.uk/", "some/file/d.jpg"),
+            "http://www.bbc.co.uk/some/file/d.jpg", "OK when ending with /");
+        assert.equal(UstadJS.resolveURL("https://www.yahoo.com/somedir", 
+            "file/path.jpg"), "https://www.yahoo.com/file/path.jpg", 
+            "OK when absolute URL does not have trailing slash");
+        assert.equal(UstadJS.resolveURL("https://www.sun.com/some/dir/path",
+            "/base.css"), "https://www.sun.com/base.css",
+            "OK when using / to indicate path relative to server");
+        assert.equal(UstadJS.resolveURL("http://www.somewhere.com/some/fly",
+            "http://absolutelink.com/some/file.opds"), 
+            "http://absolutelink.com/some/file.opds",
+            "Leaves absolute links as is");
+        assert.equal(UstadJS.resolveURL("https://someserver.com/page",
+            "//some.cdn.com/some/file.css"), 
+            "https://some.cdn.com/some/file.css");
+        assert.equal(UstadJS.resolveURL("https:/www.someplace.com/some/place.html",
+            "../file.jpg"), 
+            "https:/www.someplace.com/file.jpg");
+        assert.equal(UstadJS.resolveURL("https:/www.someplace.com/some/place.html",
+            "./file.jpg"), 
+            "https:/www.someplace.com/some/file.jpg");
+    });
+}
+
+
 function testOPDSFeed() {
     QUnit.test("Load and interpret opds feed", function(assert) {
-        assert.expect(8);
+        assert.expect(9);
         var opdsDoneFn = assert.async(1);
         
         $.ajax("assets/catalog1.opds", {
@@ -80,6 +108,25 @@ function testOPDSFeed() {
             }
             assert.ok(!missingLink, "Found acquire link for all entries");
             
+            //test programmatically adding an entry manually with strings
+            
+            var newItemProps = { 
+                title : "This woz added",
+                id : "com.ustadmobile.newitem_added"
+            }; 
+
+            var newEntry = new UstadJSOPDSEntry(null, opdsObj);
+            newEntry.setupEntry(newItemProps);
+            var foundIds = opdsObj.xmlDoc.querySelectorAll("feed > entry > id");
+            var matchEntry = "";
+            for(var i = 0; i < foundIds.length; i++) {
+                if(foundIds[i].textContent === newItemProps.id) {
+                    matchEntry = foundIds[i].textContent;
+                }
+            }
+            assert.equal(matchEntry, newItemProps.id, 
+                "Added entry to catalog 'manually' with strings");
+            
             //test adding an entry
             $.ajax("assets/package.opf", {
                 dataType : "text"
@@ -100,6 +147,9 @@ function testOPDSFeed() {
                 var numMatchingEntries = matchingLinkSearchResult.length;
                 assert.ok(numMatchingEntries >= 1,  
                     "Found " + numMatchingEntries + " entries");
+                    
+                
+                    
                 opdsDoneFn();
             });
             
@@ -195,7 +245,7 @@ function testAbsoluteURLs() {
         var absURL = "http://www.server.com/some/file.html";
         assert.equal(UstadJS.makeAbsoluteURL(absURL), absURL, 
             "Absolute URL remains as it was");
-            
+        
     });
 }
 
