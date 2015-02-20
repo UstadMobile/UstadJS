@@ -166,15 +166,39 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
         },
         
         /**
+         * 
+         * @param {type} entryId
+         * @param {type} elStatus
+         * @param {type} options
+         * @returns {undefined}
+         */
+        updateentrystatus: function(entryId, elStatus, options) {
+            var entryEl = $("div.umjs_opdsbrowser_feedelement[data-feed-id='" +
+                entryId + "']");
+            var feedType = entryEl.attr("data-feed-type");
+            
+            entryEl.children(".umjs_opdsbrowser_statusarea").replaceWith(
+                this._makeFeedElementStatusArea(entryId, feedType, elStatus, 
+                options));
+        },
+        
+        updateentryprogress: function(entryId, progressEvt) {
+            var progressEl = $("div.umjs_opdsbrowser_feedelement[data-feed-id='" +
+                entryId + "'] progress");
+            progressEl.attr("value", progressEvt.loaded);
+            progressEl.attr("max", progressEvt.total);
+        },
+        
+        /**
          * Make the status area for a feed element being shown
          * 
          * @param {string} entryId The entry we are making a 
          * @param {string} feedType "navigation" or "acquisition"
          * @param {string} elStatus String as per $UstadJSOPDSBrowser constants
-         * @param {Object} statusInfo if status is in progress have .progress as num between 0 and 100
+         * @param {Object} options if status is in progress have .progress as num between 0 and 100
          * @returns {jQuery|$} element for the feed status area
          */
-        _makeFeedElementStatusArea: function(entryId, feedType, elStatus, statusInfo) {
+        _makeFeedElementStatusArea: function(entryId, feedType, elStatus, options) {
             var statusClassName = "umjs_opdsbrowser_elstatus_" + elStatus;
             
             var elStatusArea = $("<div/>", {
@@ -182,16 +206,20 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
                     " " + statusClassName
             });
             
+            elStatusArea.addClass("umjs_opdsbrowser_statusarea");
+            
             if(elStatus === $UstadJSOPDSBrowser.ACQUISITION_IN_PROGRESS) {
                 var progressBar = $("<progress/>",{
-                    "value" : statusInfo.progress,
-                    "max" : 100
+                    "value" : options.loaded,
+                    "max" : options.total
                 });
                 
                 elStatusArea.append(progressBar);
             }else {
                 var buttonText = this.options["button_text_" + feedType][elStatus];
-                elStatusArea.append("<button>"+buttonText+"</button>");
+                var buttonEl = $("<button/>");
+                buttonEl.text(buttonText);
+                elStatusArea.append(buttonEl);
             }
             
             return elStatusArea;
@@ -211,15 +239,18 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
                 "data-feed-id" : entry.id,
                 "data-feed-type" : feedType
             });
+            
+            elEntry.addClass("umjs_opdsbrowser_feedelement");
            
             var widgetObj = this;
             elEntry.on("click", function(evt) {
                 var clickedFeedId = $(this).attr("data-feed-id");
                 var clickedFeedType = $(this).attr("data-feed-type");
                 var evtName = clickedFeedType + "feedselected";
-                widgetObj._trigger(evtName, evt, {
+                widgetObj._trigger(evtName, null, {
                     feedId : clickedFeedId,
-                    feedType : clickedFeedType
+                    feedType : clickedFeedType,
+                    entry : entry
                 });
             });
             
