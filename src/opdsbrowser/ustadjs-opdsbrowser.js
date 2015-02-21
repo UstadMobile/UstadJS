@@ -235,7 +235,7 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
         },
         
         _handleContainerElClick: function(evt, data) {
-            var entryId = $(evt.target).attr("data-entry-id");
+            var entryId = $(evt.delegateTarget).attr("data-entry-id");
             var entry = this.options._opdsFeedObj.getEntryById(entryId);
             
             this._trigger("containerentryselected", null, {

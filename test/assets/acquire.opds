@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom" 
   xmlns:dc="http://purl.org/dc/terms/" 
   xmlns:opds="http://opds-spec.org/2010/catalog">
-    <id>http://umcloud1.ustadmobile.com/opds/courseid/6</id>
+    <id>http://umcloud1.ustadmobile.com/opds/courseid/6B</id>
     
     <link rel="start"
                 href="/opds/"
