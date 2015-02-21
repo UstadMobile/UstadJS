@@ -284,7 +284,25 @@ UstadJSOPDSFeed.prototype = {
      */
     toString: function() {
         return new XMLSerializer().serializeToString(this.xmlDoc);
+    },
+    
+    /**
+     * Find a UstadJSOPDSEntry object in the feed according to the id
+     * 
+     * @param {string} entryId to look for
+     * 
+     * @return {UstadJSOPDSEntry} object representing the requested feed entry, null if not found
+     */
+    getEntryById: function(entryId) {
+        for(var i = 0; i < this.entries.length; i++) {
+            if(this.entries[i].id === entryId) {
+                return this.entries[i];
+            }
+        }
+        
+        return null;
     }
+    
 };
 
 
@@ -415,6 +433,34 @@ UstadJSOPDSEntry.prototype = {
         
         this.parentFeed.addEntry(this);
         
+    },
+    
+    /**
+     * Summary will come from atom:summary link if present and NOT dc:description
+     * etc as per the OPDS spec (section 8.1).  If neither are present then
+     * we will return teh fallbackVal if specified
+     * 
+     * @param {string} [fallbackVal=null] optional fallback value to use in case 
+     * nothing found
+     * 
+     * @returns Content of atom:summary for entry, if absent atom:content, 
+     * otherwise fallbackVal
+     */
+    getSummary: function(fallbackVal) {
+        var summaryEls = this.xmlNode.getElementsByTagNameNS(
+            "http://www.w3.org/2005/Atom", "summary");
+        if(summaryEls.length > 0) {
+            return summaryEls[0].textContent;
+        }
+        
+        var descEls = this.xmlNode.getElementsByTagNameNS(
+            "http://www.w3.org/2005/Atom", "content");
+        if(descEls.length > 0) {
+            return descEls[0].textContent;
+        }
+        
+        fallbackVal = (typeof fallbackVal !== "undefined") ? fallbackVal : null;
+        return fallbackVal;
     }
     
     

@@ -78,7 +78,7 @@ function testPathResolver() {
 
 function testOPDSFeed() {
     QUnit.test("Load and interpret opds feed", function(assert) {
-        assert.expect(9);
+        assert.expect(14);
         var opdsDoneFn = assert.async(1);
         
         $.ajax("assets/catalog1.opds", {
@@ -88,6 +88,22 @@ function testOPDSFeed() {
                 "assets/catalog1.opds");
             assert.ok(opdsObj.title, "Found course title");
             assert.ok(opdsObj.entries.length > 0, "OPDS catalog has entries");
+            
+            var entry0Summary = opdsObj.entries[0].getSummary();
+            
+            assert.equal(opdsObj.getEntryById(opdsObj.entries[0].id),
+                opdsObj.entries[0], "Can find entry by ID");
+            assert.equal(opdsObj.getEntryById("THISAINT/HERE/BUDDY"),
+                null, "Asking for entry not in feed returns null");
+            
+            assert.equal(entry0Summary.substring(0, 31),
+                "The story of the son of the Bob",
+                "Got summary from first atom:summary item");
+            
+            var entry1Summary = opdsObj.entries[1].getSummary();
+            assert.equal(entry1Summary.substring(0, 28), 
+                "The definitive reference for",
+                "Got summary from the atom:content item when summary not present");
             
             var asString = opdsObj.toString();
             var opdsObj2 = UstadJSOPDSFeed.loadFromXML(asString, 
@@ -126,6 +142,9 @@ function testOPDSFeed() {
             }
             assert.equal(matchEntry, newItemProps.id, 
                 "Added entry to catalog 'manually' with strings");
+            
+            assert.equal(newEntry.getSummary(""), "", 
+                "Use fallback summary when no content or summary item present");
             
             //test adding an entry
             $.ajax("assets/package.opf", {

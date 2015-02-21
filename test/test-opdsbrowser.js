@@ -4,9 +4,10 @@
 
 QUnit.module("UstadJSOPDSBrowser", {
     setup: function() {
-        $("#test_opdsbrowser").opdsbrowser({
+        $(".ustadjs_opdsbrowser").opdsbrowser({
             "defaulticon_acquisitionfeed": "../src/img/default-acquire-icon.png",
-            "defaulticon_navigationfeed" : "../src/img/default-navigation-icon.png"
+            "defaulticon_navigationfeed" : "../src/img/default-navigation-icon.png",
+            "defaulticon_containerelement" :"../src/img/default-acquire-icon.png"
         });
     }
 });
@@ -16,7 +17,7 @@ QUnit.module("UstadJSOPDSBrowser", {
 }());
 
 function testUstadJSOPDSBrowser() {
-    QUnit.test("UstadJSOPDSBrowser running", function(assert) {
+    QUnit.test("UstadJSOPDSBrowser Main Tests", function(assert) {
         var donefn = assert.async();
         $.ajax("assets/shelf.opds", {
             dataType : "text"
@@ -24,7 +25,7 @@ function testUstadJSOPDSBrowser() {
             var opdsObj = UstadJSOPDSFeed.loadFromXML(opdsStr, 
                 "assets/catalog1.opds");
             
-            testUstadJSOPDSBrowserFromObj(opdsObj, assert, "#test_opdsbrowser",
+            testUstadJSOPDSBrowserNavFeed(opdsObj, assert, "#test_opdsbrowser",
                 function() {
                     assert.expect(5);
                     //now try updating the status of an item
@@ -56,7 +57,41 @@ function testUstadJSOPDSBrowser() {
         
         
     });
+    
+    QUnit.test("UstadJS OPDSBrowser - Acquisition Feed View", function(assert) {
+        assert.expect(1);
+        var donefn = assert.async();
+        $.ajax("assets/acquire.opds", {
+            dataType : "text"
+        }).done(function(opdsStr) {
+            var opdsObj = UstadJSOPDSFeed.loadFromXML(opdsStr, 
+                "assets/acquire.opds");
+            testUstadJSOPDSBrowserAcquisitionFeed(opdsObj, assert, 
+                "#test_opdsbrowser_acquisitionfeed", donefn);
+            
+        });
+    });
 }
+
+function testUstadJSOPDSBrowserAcquisitionFeed(opdsObj, assert, itemSelector, donefn2) {
+    assert.expect(3);
+        
+    $(itemSelector).opdsbrowser(
+                "setupacquisitionfeedview", opdsObj);
+    
+    assert.ok($(itemSelector).hasClass("umjs_opdsbrowser_acquisitionfeedview"),
+        "has correct class");
+    
+    
+    $(itemSelector).opdsbrowser("option", "containerentryselected", function(evt, data) {
+        assert.ok(data.entry instanceof UstadJSOPDSEntry, "Clicking triggers event with entry");
+        assert.equal(data.entry.id, opdsObj.entries[0].id, "Loaded with correct id");
+        donefn2();
+    });
+    
+    $(itemSelector + " .umjs_opdsbrowser_containerentry_element").first().trigger("click");
+}
+
 
 /**
  * Runs the standard set of tests against a given opds feed 
@@ -66,10 +101,10 @@ function testUstadJSOPDSBrowser() {
  * @param {function} donefn function to call when done (async)
  * @param {string} itemSelector JQuery item selector for what's running the frame
  */
-function testUstadJSOPDSBrowserFromObj(opdsObj, assert, itemSelector, donefn) {
+function testUstadJSOPDSBrowserNavFeed(opdsObj, assert, itemSelector, donefn) {
     assert.expect(3);
     assert.ok($(itemSelector).hasClass("umjs_opdsbrowser"));
-    $(itemSelector).opdsbrowser("setupfromfeed", opdsObj);
+    $(itemSelector).opdsbrowser("setupnavigationfeedview", opdsObj);
     assert.ok($(itemSelector).opdsbrowser("option", "_opdsFeedObj") === opdsObj,
         "OPDS Object is loaded");
     

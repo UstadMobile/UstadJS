@@ -63,6 +63,12 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             defaulticon_navigationfeed: "default-navigation.png",
             
             /**
+             * @type {string}
+             * icon to show for entries in an acquisition feed with conatainers to download
+             */
+            defaulticon_containerelement: "default-containerel.png",
+            
+            /**
              * @type {UstadJSOPDSFeed}
              */
             _opdsFeedObj : null,
@@ -80,6 +86,14 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
              * @type {function}
              */
             acquisitionfeedselected: null,
+            
+            /**
+             * Callback to run when the user selects an acquisition container
+             * (e.g. epub file)
+             * 
+             * @type {function}
+             */
+            containerentryselected : null,
             
             /**
              * A function that should return whether or not the given device id
@@ -114,25 +128,32 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
         },
         
         /**
-         * Setup this OPDS feed browser from the given feed object.  This can be
-         * called on the same widget with a different feed, e.g. when the user
-         * clicks on a subcategory etc.
-         * 
-         * @param {UstadJSOPDSFeed} opdsSrc Source OPDS element
-         * @returns {undefined}
+         * Append appropriate CSS classed title to the main element here
          */
-        setupfromfeed: function(opdsSrc) {
-            this.element.empty();
-            this.options._opdsFeedObj = opdsSrc;
-            
+        _appendTitle: function(titleStr) {
             var titleEl = $("<div/>", {
                 class : "umjs_opdsbrowser_title"
             });
-            titleEl.text(opdsSrc.title);
+            titleEl.text(titleStr);
             this.element.append(titleEl);
+        },
+        
+        /**
+         * Sets up a navigation feed view where acquisition feeds are shown
+         * as tiles, other navigation feeds are shown as screen width category
+         * buttons at the bottom.
+         * 
+         * Use with OPDS navigation feeds: e.g. link type
+         * application/atom+xml;profile=opds-catalog;kind=navigation
+         * see: http://opds-spec.org/specs/opds-catalog-1-1-20110627/#Navigation_Feeds
+         * 
+         * @param {UstadJSOPDSFeed} opdsSrc the source feed
+         */
+        setupnavigationfeedview: function(opdsSrc) {
+            this.options._opdsFeedObj = opdsSrc;
+            this.element.empty();
             
-            
-            this.element.append(this.acquisitionFeedContainer);
+            this._appendTitle(opdsSrc.title);
             
             var feedInfo = [
                 {
@@ -165,6 +186,30 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             }
         },
         
+        setupacquisitionfeedview: function(opdsSrc) {
+            this.options._opdsFeedObj = opdsSrc;
+            this.element.empty();
+            this._appendTitle(opdsSrc.title);
+            this.element.addClass("umjs_opdsbrowser_acquisitionfeedview");
+            
+            for(var f = 0; f < opdsSrc.entries.length; f++) {
+                var containerEl = this._makeContainerElement(opdsSrc.entries[f]);
+                this.element.append(containerEl);
+            }
+        },
+        
+        /**
+         * Setup this OPDS feed browser from the given feed object.  This can be
+         * called on the same widget with a different feed, e.g. when the user
+         * clicks on a subcategory etc.
+         * 
+         * @param {UstadJSOPDSFeed} opdsSrc Source OPDS element
+         * @returns {undefined}
+         */
+        setupfromfeed: function(opdsSrc) {
+            
+        },
+        
         /**
          * 
          * @param {type} entryId
@@ -188,6 +233,55 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             progressEl.attr("value", progressEvt.loaded);
             progressEl.attr("max", progressEvt.total);
         },
+        
+        _handleContainerElClick: function(evt, data) {
+            var entryId = $(evt.target).attr("data-entry-id");
+            var entry = this.options._opdsFeedObj.getEntryById(entryId);
+            
+            this._trigger("containerentryselected", null, {
+                entryId : entryId,
+                entry : entry
+            });
+        },
+        
+        
+        /**
+         * Make a container element for an entry that has containers for
+         * download
+         * 
+         * @param {UstadJSOPDSEntry} entry the entry to make the container
+         * element for
+         */
+        _makeContainerElement: function(entry) {
+            var containerEl = $("<div/>", {
+                "class" : "umjs_opdsbrowser_containerentry_element",
+                "data-entry-id" : entry.id
+            });
+            
+            var titleEl = $("<div/>", {
+                "class" : "umjs_entry_title"
+            });
+            titleEl.text(entry.title);
+            
+            containerEl.append(titleEl);
+            
+            
+            var imgEl = $("<img/>", {
+                src : this.options.defaulticon_containerelement,
+                class : "umjs_opdsbrowser_containerentry_cover"
+            });
+            containerEl.append(imgEl);
+            
+            var summaryContainer = $("<div/>", {
+                "class" : "umjs_opdsbrowser_containerentry_cover_summary"
+            });
+            summaryContainer.text(entry.getSummary(""));
+            containerEl.append(summaryContainer);
+            containerEl.on("click", this._handleContainerElClick.bind(this));
+            
+            return containerEl;
+        },
+        
         
         /**
          * Make the status area for a feed element being shown
@@ -276,7 +370,7 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             
             
             return elEntry;
-        },
+        }
         
     });
 }(jQuery));    
