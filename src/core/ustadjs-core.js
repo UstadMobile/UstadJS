@@ -461,6 +461,25 @@ UstadJSOPDSEntry.prototype = {
         
         fallbackVal = (typeof fallbackVal !== "undefined") ? fallbackVal : null;
         return fallbackVal;
+    },
+    
+    /**
+     * Add a link to this entry
+     * 
+     * @param {string} rel Relationship e.g. subsection or http://opds-spec.org/acquisition
+     * @param {string} href href to link
+     * @param {string} mimeType Mime type of item being linked to
+     * @returns {undefined}
+     */
+    addLink: function(rel, href, mimeType) {
+        var parentDoc = this.parentFeed.xmlDoc;
+        var linkNode = parentDoc.createElementNS(
+            "http://www.w3.org/2005/Atom", "link");
+        linkNode.setAttribute("rel", rel);
+        linkNode.setAttribute("href", href);
+        linkNode.setAttribute("type", mimeType);
+        
+        this.xmlNode.appendChild(linkNode);
     }
     
     
