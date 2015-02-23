@@ -78,7 +78,7 @@ function testPathResolver() {
 
 function testOPDSFeed() {
     QUnit.test("Load and interpret opds feed", function(assert) {
-        assert.expect(14);
+        assert.expect(16);
         var opdsDoneFn = assert.async(1);
         
         $.ajax("assets/catalog1.opds", {
@@ -124,6 +124,12 @@ function testOPDSFeed() {
             }
             assert.ok(!missingLink, "Found acquire link for all entries");
             
+            //asking getLinks for a link type that does not exist will return
+            //an empty array
+            assert.equal(opdsObj.entries[0].getAcquisitionLinks("relNOTHERE", 
+                "type/not+here"), null, 
+                "Asking for a rel/link type not present returns null");
+            
             //test programmatically adding an entry manually with strings
             
             var newItemProps = { 
@@ -140,6 +146,14 @@ function testOPDSFeed() {
                     matchEntry = foundIds[i].textContent;
                 }
             }
+            
+            newEntry.addLink(UstadJSOPDSEntry.LINK_ACQUIRE,
+                "some/file.epub", UstadJSOPDSEntry.TYPE_EPUBCONTAINER);
+            
+            assert.equal(newEntry.getAcquisitionLinks(UstadJSOPDSEntry.LINK_ACQUIRE,
+                UstadJSOPDSEntry.TYPE_EPUBCONTAINER, true), "some/file.epub",
+                "Added link href can be found");
+            
             assert.equal(matchEntry, newItemProps.id, 
                 "Added entry to catalog 'manually' with strings");
             
