@@ -124,7 +124,9 @@ GNU General Public License for more details.
             }).done($.proxy(function(data) {
                 this.options.opf = new UstadJSOPF();
                 this.options.opf.loadFromOPF(data);
-                var firstURL = opfBaseURL + this.options.opf.spine[0].href;
+                var firstLinearItem = this.options.opf.findNextLinearSpineIndex(
+                    0, 1);
+                var firstURL = opfBaseURL + this.options.opf.spine[firstLinearItem].href;
                 firstURL = this.appendParamsToURL(firstURL);
                 
                 this.options.num_pages = this.options.opf.spine.length;
@@ -168,13 +170,20 @@ GNU General Public License for more details.
         },
         
         /**
-         * Navigate along the spine (e.g. back/next)
+         * Navigate along the spine (e.g. back/next) - looks only for linear
+         * elements in the spine as per the epub spec
          * 
          * @param {type} increment
          * @returns {undefined}
          */
         go: function(increment, callback) {
-            var nextIndex = this.options.spine_pos + increment;
+            var nextIndex = this.options.opf.findNextLinearSpineIndex(
+                this.options.spine_pos+increment, increment);
+            if(nextIndex === -1) {
+                UstadJS.runCallback(callback, this, ["fail: no more pages"]);
+                return;
+            }
+            
             var nextURL = this.options.baseurl + 
                     this.options.opf.spine[nextIndex].href;
             nextURL = this.appendParamsToURL(nextURL);

@@ -63,7 +63,7 @@ function testUstadJSOpubFrameCreate() {
    
    
     QUnit.test("OPub Frame load", function(assert) {
-        assert.expect(6);
+        assert.expect(7);
         var donefn = assert.async();
         
         $("#test_opubframe").opubframe("option", "page_query_params",
@@ -93,7 +93,16 @@ function testUstadJSOpubFrameCreate() {
                 assert.ok(pgTitle, "Got a page title");
                 assert.ok(result === "success", 
                     "Going to next page returns success");
-                donefn();
+                $("#test_opubframe").opubframe("go", -1, function(result) {
+                    //should be back at zero here 
+                    $("#test_opubframe").opubframe("go", -1, function(result) {
+                        //should fail
+                        assert.equal(result.substring(0, 4), "fail", 
+                            "Fail specified when no more pages left");
+                        donefn();
+                    });
+                });
+                
             });
             
         });

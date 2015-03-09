@@ -113,7 +113,7 @@
 <item id="content_xsd" href="content.xsd" media-type="application/xml" />
 </manifest>
 <spine>
-<itemref idref="cover"/>
+<itemref idref="cover" linear="no"/>
 <itemref idref="home"/>
 <itemref idref="topic1"/>
 <itemref idref="section"/>

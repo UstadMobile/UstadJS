@@ -448,6 +448,8 @@ UstadJSOPDSEntry.prototype = {
         this.xmlNode = xmlNode;
         this.title = xmlNode.querySelector("title").textContent;
         this.id = xmlNode.querySelector("id").textContent;
+        
+        
     },
     
     /**
@@ -587,10 +589,19 @@ UstadJSOPF.prototype = {
         }
         
         //now find the spine
+        /*
+         * TODO: the spine should actually be references defined with whether or not
+         * they are linear etc.  There may actually be multiple references to the same
+         * item
+         */
         var spine = this.xmlDoc.getElementsByTagName("spine")[0];
         var spineItems = spine.getElementsByTagName("itemref");
         for(var j = 0; j < spineItems.length; j++) {
             var itemID = spineItems[j].getAttribute("idref");
+            if(spineItems[j].hasAttribute("linear")) {
+                this.items[itemID].linear = 
+                    (spineItems[j].getAttribute("linear") !== "no");
+            }
             this.spine.push(this.items[itemID]);
         }
         
@@ -601,6 +612,27 @@ UstadJSOPF.prototype = {
         var idEl = manifestEl.getElementsByTagNameNS("*", "identifier")[0];
         this.title = titleEl.textContent;
         this.identifier = idEl.textContent;
+    },
+    
+    /**
+     * Get the next linear entry index fromm the spine
+     * @param start {number} the first value to look at
+     * @param increment {number} 1 or -1 : the direction to look in case entries found are not linear
+     * 
+     * @return {number} The next linear index or -1 if nothing found
+     */
+    findNextLinearSpineIndex: function(start, increment) {
+        var isLinear = false;
+        var currentPos = start;
+        while(!isLinear && (currentPos >= 0) && (currentPos< this.spine.length)) {
+            if(this.spine[currentPos].linear) {
+                return currentPos;
+            }
+            
+            currentPos += increment;
+        }
+    
+        return -1;
     },
     
     /**
@@ -678,6 +710,7 @@ UstadJSOPFItem = function(id, mediaType, href) {
     this.id = id;
     this.mediaType = mediaType;
     this.href = href;
+    this.linear = true;
 };
 
 UstadJSOPFItem.prototype = {

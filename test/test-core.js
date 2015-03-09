@@ -78,8 +78,8 @@ function testPathResolver() {
 
 function testOPDSFeed() {
     QUnit.test("Load and interpret opds feed", function(assert) {
-        assert.expect(16);
-        var opdsDoneFn = assert.async(1);
+        assert.expect(18);
+        var opdsDoneFn = assert.async();
         
         $.ajax("assets/catalog1.opds", {
             dataType  : "text"
@@ -88,6 +88,8 @@ function testOPDSFeed() {
                 "assets/catalog1.opds");
             assert.ok(opdsObj.title, "Found course title");
             assert.ok(opdsObj.entries.length > 0, "OPDS catalog has entries");
+            
+            
             
             var entry0Summary = opdsObj.entries[0].getSummary();
             
@@ -181,8 +183,18 @@ function testOPDSFeed() {
                 assert.ok(numMatchingEntries >= 1,  
                     "Found " + numMatchingEntries + " entries");
                     
+                //test that we can find the next linear items
+                var firstLinearItemIndex = ustadOPFObj.findNextLinearSpineIndex(
+                    0, 1);
+                assert.equal(firstLinearItemIndex, 1, 
+                    "First Linear item is index 1 - skip linear=no on cover");
+                //test that we will get -1 if it's not findable
+                var cantFindLinearIndex = ustadOPFObj.findNextLinearSpineIndex(0, 
+                    -1);
+                assert.equal(cantFindLinearIndex, -1, 
+                    "When no more linear items are available returns -1");
                 
-                    
+                
                 opdsDoneFn();
             });
             
