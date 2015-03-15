@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+   <html>
+    <head>
+        <title>UstadJS MicroEmu Test</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="../lib/qunit/qunit.css"/>
+        
+        <script src="../lib/jquery.min.js" type="text/javascript"></script>
+        <script src="../lib/jqueryui/jquery-ui.js" type="text/javascript"></script>
+        
+        <script src="../lib/qunit/qunit.js" type="text/javascript"></script>
+        
+        <script src="../lib/blanket/blanket.js" type="text/javascript"></script>
+        
+        <script>
+            if (location.href.match(/(\?|&)gruntReport($|&|=)/)) {
+                blanket.options("reporter", "../lib/blanket/grunt-reporter.js");
+                
+                //we also need a polyfill for bind.. thanks PhantomJS
+                //see https://github.com/ariya/phantomjs/issues/10522
+                
+                var isFunction = function(o) {
+                    return typeof o == 'function';
+                  };
+
+
+                  var bind,
+                    slice = [].slice,
+                    proto = Function.prototype,
+                    featureMap;
+
+                  featureMap = {
+                    'function-bind': 'bind'
+                  };
+
+                  function has(feature) {
+                    var prop = featureMap[feature];
+                    return isFunction(proto[prop]);
+                  }
+
+                  // check for missing features
+                  if (!has('function-bind')) {
+                    // adapted from Mozilla Developer Network example at
+                    // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function/bind
+                    bind = function bind(obj) {
+                      var args = slice.call(arguments, 1),
+                        self = this,
+                        nop = function() {
+                        },
+                        bound = function() {
+                          return self.apply(this instanceof nop ? this : (obj || {}), args.concat(slice.call(arguments)));
+                        };
+                      nop.prototype = this.prototype || {}; // Firefox cries sometimes if prototype is undefined
+                      bound.prototype = new nop();
+                      return bound;
+                    };
+                    proto.bind = bind;
+                  }
+            }
+        </script>
+        
+        <script src="../src/core/ustadjs-core.js" type="text/javascript">
+        </script>
+        
+        <script src="../src/microemu/ustadjs-microemu.js" type="text/javascript" data-cover>
+        </script>
+        
+        <script src="../test/test-microemu.js" type="text/javascript">
+        </script>
+        
+    </head>
+    <body>
+        <div id="test_microemu">
+            
+        </div>
+        
+        
+        <div id="qunit"></div>
+        <div id="qunit-fixture"></div>
+
+    </body>
+</html>

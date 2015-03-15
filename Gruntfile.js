@@ -61,7 +61,8 @@ module.exports = function(grunt) {
                     urls: [
                         'test/test-opubframe.html?coverage=true&gruntReport',
                         'test/test-core.html?coverage=true&gruntReport',
-                        'test/test-opdsbrowser.html?coverage=true&gruntReport'
+                        'test/test-opdsbrowser.html?coverage=true&gruntReport',
+                        'test/test-microemu.html?coverage=true&gruntReport'
                     ],
                     threshold: 90
                 }
