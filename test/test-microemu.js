@@ -27,7 +27,7 @@ var UstadMicroTestOpts = {
 function testUstadJSMicroEmu() {
     QUnit.test("MicroEmu setup tests", function(assert) {
         var microSetupDoneFn = assert.async();
-        assert.expect(19);
+        assert.expect(20);
         
         
         $("#test_microemu").microemu("loadmicroemuskin", 
@@ -207,6 +207,18 @@ function testUstadJSMicroEmu() {
                     assert.equal( 
                         $("#test_microemu").microemu("getselectedelement").checked,
                         true, "Clicking on select on menubar selects item");
+                    
+                    var objTracker = {
+                        buttonPushed : null
+                    };
+                    $("#test_microemu").on("phonebuttonpress", function(evt) {
+                        objTracker.buttonPushed = evt.buttonName;
+                    });
+                    
+                    $("#test_microemu").microemu("handleMouseClick", 
+                        fakeEvtSelect);
+                    assert.equal(objTracker.buttonPushed, "SELECT", 
+                        "Received select event");
                     
                     setTimeout(microSetupDoneFn, 1000);
                 });

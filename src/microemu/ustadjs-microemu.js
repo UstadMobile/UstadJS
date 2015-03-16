@@ -191,7 +191,14 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
      *  
      *  });
      * 
-     * 
+     *  The widget will trigger events of type "phonebuttonpress" which will 
+     *  have a buttonName property corresponding with the button name defined
+     *  in device.xml.
+     *  
+     *  If the event is the default action (e.g. there are no selectable elements
+     *  in selectablecontainer) the event will have the property 
+     *  isFormDefaultAction set as true, false otherwise.
+     *  
      *
      * @class UstadJSOPDSBrowser
      * @memberOf jQuery.fn
@@ -763,6 +770,8 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
          */
         handlePhoneButtonPress: function(evt) {
             var hasSelectableElements = this.selectedElementIndex !== -1;
+            evt.isFormDefaultAction = (this.selectedElementIndex === -1);
+            
             if(hasSelectableElements) {
                 var selectedElement = this.selectableElements[
                     this.selectedElementIndex];
@@ -782,6 +791,8 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
                     $(selectedElement).trigger("click");
                 }
             }
+            
+            $(this.element).trigger(evt);
         },
         
         /**
