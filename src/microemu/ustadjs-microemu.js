@@ -1,5 +1,7 @@
 /* 
- * A widget for displaying content in a feature phone like skin using the 
+ * A jQuery widget for displaying content in a feature phone like skin with
+ * some required utilities.
+ * 
  * MicroEmu format as per:
  
   http://www.petitpub.com/labs/j2me/me/tutorial/
@@ -33,6 +35,11 @@ var $UstadJSMicroEmu = {
     }
 };
 
+/**
+ * 
+ * @class $UstadJSMicroEmuButton
+ * @param {string} name button name e.g. SELECT SOFT1 as per device.xml
+ */
 var $UstadJSMicroEmuButton = function(name) {
     this.shape = null;
     this.name = name;
@@ -40,16 +47,24 @@ var $UstadJSMicroEmuButton = function(name) {
     this.state = 0;
 };
 
+/**
+ * See if a given point (relative to the main widget) is contained within
+ * the button
+ * 
+ * @param {Number} x click x coordinate
+ * @param {Number} y click y coordinate
+ * @returns {boolean}
+ */
 $UstadJSMicroEmuButton.prototype.containsPoint = function(x, y) {
     return this.shape.containsPoint(x,y);
 };
 
 /**
-         * Add a button from the relevant XML node from device.xml
-         * 
-         * @param {type} xmlEl
-         * @returns {undefined}
-         */
+ * Add a button from the relevant XML node from device.xml
+ * 
+ * @param {Element} xmlEl The element from device.xml that represents the button
+ * @returns {$UstadJSMicroEmuButton} a button from the XML element
+*/
 $UstadJSMicroEmuButton.makeButtonObjFromXML = function(xmlEl) {
     var buttonName = xmlEl.getAttribute("name");
     var buttonObj = new $UstadJSMicroEmuButton(buttonName);
@@ -72,6 +87,19 @@ $UstadJSMicroEmuButton.makeButtonObjFromXML = function(xmlEl) {
     return buttonObj;
 };
 
+/**
+ * Represents a rectangle from device.xml - e.g. paintable area or button etc.
+ * 
+ * @class $UstadJSMicroEmuButton.Rectangle
+ * 
+ * @param {Object} coords Coordinates to use
+ * @param {number} coords.x rectangle x coord
+ * @param {number} coords.y rectangle y coord
+ * @param {number} coords.width rectangle width
+ * @param {number} coords.height rectnagle height
+ * 
+ * @returns {$UstadJSMicroEmuButton.Rectangle}
+ */
 $UstadJSMicroEmuButton.Rectangle = function(coords) {
     this.x = coords.x;
     this.y = coords.y;
@@ -83,8 +111,8 @@ $UstadJSMicroEmuButton.Rectangle = function(coords) {
  * Make a rectangle object from an xml element with x, y, width, height
  * params as is found in device.xml files for MicroEmu
  * 
- * @param {type} xmlEl
- * @returns {undefined}
+ * @param {Element} xmlEl XML element containing x, y, width and height elements
+ * @returns {$UstadJSMicroEmuButton.Rectangle}
  */
 $UstadJSMicroEmuButton.Rectangle.makeFromXMLEl = function(xmlEl) {
     var attrs = ["x", "y", "width", "height"];
@@ -96,12 +124,20 @@ $UstadJSMicroEmuButton.Rectangle.makeFromXMLEl = function(xmlEl) {
     return new $UstadJSMicroEmuButton.Rectangle(coords);
 };
 
+/**
+ * See if an x/y coordinate is within the rectangle
+ * 
+ * @param {Number} x coord x
+ * @param {Number} y coord y
+ * @returns {Boolean} true if point is within rectangle, false otherwise
+ */
 $UstadJSMicroEmuButton.Rectangle.prototype.containsPoint = function(x, y) {
     return (x >= this.x && x <= (this.x + this.width)) &&
         (y >= this.y && y <= (this.y + this.height));
 };
 
 /**
+ * Represents a polygon object (e.g. used on buttons)
  * 
  * @param {Array} coords Array of objects with x and y (.x and .y) integer coordinates
  */
@@ -162,16 +198,42 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
      */
     $.widget("umjs.microemu", {
         
+        /**
+         * Whether or not load event has fired
+         * @type {Boolean}
+         */
         loadedEvtFired: false,
         
+        /**
+         * Callback function for success on loadmicroemuskin
+         * @type {function}
+         */
         _setupCallbackSuccessFn: null,
         
+        /**
+         * Callback function for failure on loadmicroemuskin
+         * @type {function}
+         */
         _setupCallbackFailFn : null,
         
+        /**
+         * Buttons from the device.xml skin
+         * @type {Array<$UstadJSMicroEmuButton>}
+         */
         _buttons: [],
         
+        /**
+         * Index of the button that mouse is currently over (hover)
+         * 
+         * @type {Number}
+         */
         _mouseOverButtonIndex: -1,
         
+        /**
+         * Index of the button that mouse is currently pressing (mousedown)
+         * 
+         * @type {Number}
+         */
         _mousePressedKeyIndex: -1,
         
         /**
@@ -181,39 +243,108 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
          */
         focusedElementIndex: -1,
         
-        /** The selectable elements found in selectableElementContainer */
+        /**
+         *  The selectable elements found in selectableElementContainer 
+         *  @type Array{Element}
+         */
         selectableElements: [],
         
         options : {
-            /** The XML Document with the MicroEmu skin descriptor */
+            /**
+             *  The XML Document with the MicroEmu skin descriptor 
+             *  @type {Document}
+             */
             microEMUSkinXML: null,
             
-            /** The absolute URL based from which assets are loaded */ 
+            /** 
+             * The absolute URL based from which assets are loaded 
+             * @type {String}
+             */ 
             assetBaseURL: "",
             
+            /**
+             * Object with .normal .over and .pressed of the image sources for
+             * phone skin
+             * @type {Object}
+             */
             imgSrcs: {},
             
+            /**
+             * Object with .normal .over and .pressed of the image objects for
+             * phone skin
+             * @type {Object}
+             */
             imgs: {},
             
+            /**
+             * Object with .normal .over and .pressed of the image load states for
+             * phone skins as integers -1 = error, 0 = loading, 1 = loaded
+             * @type {Object}
+             */
             imgsLoadState: {},
             
-            /** Main HTML5 Canvas to draw on*/
+            /** 
+             * Main HTML5 Canvas to draw on
+             * @type {Canvas}
+             */
             canvas : null,
             
+            /**
+             * Width of the widget - set automatically from the skin on load
+             * @type {Number}
+             */
             width: 0,
             
+            /**
+             * Height of the widget - set automatically from the skin on load
+             * @type {Number}
+             */
             height: 0,
             
+            /**
+             * An element that contains the screen area (containing the paintable
+             * area and menubar area)
+             * 
+             * @type {Element}
+             */
             screenAreaElement: null,
             
+            /**
+             * An element used to put the menubar in - positioned underneath
+             * the paintableElement as per device.xml
+             * 
+             * @type {Element}
+             */
             menubarAreaElement: null,
             
-            /** Element that shows the virtual phone screen */
+            /** 
+             * The main paintable area on the screen where content is displayed
+             * 
+             * @type {Element}
+             */
             paintableElement: null,
             
-            /** Elements that can be selected are looked for in here */
+            /** 
+             * Elements that can be selected using the up and down buttons on
+             * the phone are looked for in here.
+             * 
+             * e.g. paintableElement is an automatically generated div, and then 
+             * we might use an iframe or other neseted containers.  Within this 
+             * container the widget will use
+             * selectableElementSelector to focus input items etc. when the user
+             * pushes the up/down buttons.
+             * 
+             * To implement a custom text for the middle select key use an
+             * data-umjs-microemu-msk-label attribute on the item
+             * 
+             * @type {Element}
+             */
             selectableContainer: null ,
             
+            /**
+             * The jQuery selector that is used to find user selectable elements
+             * in selectableContainer
+             */
             selectableElementSelector: "input, button",
             
             menubutton_labels: {
@@ -231,6 +362,11 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             }
         },
         
+        /**
+         * Get button according to the name from device.xml e.g. "SELECT"
+         * @param {String} buttonName name of button to find
+         * @returns {$UstadJSMicroEmuButton}
+         */
         getbuttonbyname: function(buttonName) {
             for(var i = 0; i < this._buttons.length; i++) {
                 if(this._buttons[i].name === buttonName) {
@@ -241,10 +377,21 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             return null;
         },
         
+        /**
+         * Get button by index in the button array
+         * 
+         * @param {Number} index
+         * @returns {$UstadJSMicroEmuButton}
+         */
         getbuttonbyindex: function(index) {
             return this._buttons[index];
         },
         
+        /**
+         * Get the index of a button within the button array
+         * @param {$UstadJSMicroEmuButton} button
+         * @returns {Number} index in buttons array or -1 if it's not in
+         */
         getindexofbutton: function(button) {
             for(var i = 0; i < this._buttons.length; i++) {
                 if(this._buttons[i].name === button.name) {
@@ -254,10 +401,11 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
         },
         
         /**
+         * Setup the widget from a given skin.  Make sure the path is set so
+         * imgSrcs can be resolved
          * 
-         * @param {string|Document} skin
-         * @param {Object} options
-         * @returns {undefined}
+         * @param {string|Document} skin the xml of 
+         * @param {Object} options misc options (currently unused)
          */
         setupmicroemuskin: function(skin, options) {
             skin = UstadJS.ensureXML(skin);
@@ -303,7 +451,12 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
         },
         
         
-        
+        /**
+         * 
+         * Run once all images have loaded - now we know the resolution and can
+         * set everything in motion
+         * 
+         */
         _handleAllImagesLoaded: function() {
             if(this.loadedEvtFired) {
                 return;
@@ -408,10 +561,15 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             this._setupCallbackFailFn = null;
         },
         
+        /**
+         *  Handle mousedown on menubar area
+         *  
+         * @param {MouseEvent} evt
+         */
         handleMenuBarMouseDown: function(evt) {
             evt.preventDefault();
             var evtObj = $.Event("phonebuttonpress", {
-                "target" : this.element,
+                "target" : this.element
             });
             var buttonName = evt.target.getAttribute("data-umjs-microemu-key");
             var buttonObj = this.getbuttonbyname(buttonName);
@@ -421,16 +579,19 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             $UstadJSMicroEmu.updateCanvas(this.paintCanvas.bind(this));
         },
         
+        /**
+         *  Handle mouseup on menubar area
+         *  
+         * @param {MouseEvent} evt
+         */
         handleMenuBarMouseUp: function(evt) {
             evt.preventDefault();
             var buttonName = evt.target.getAttribute("data-umjs-microemu-key");
-            var buttonObj = this.getbuttonbyname(buttonName);
             this._setMousePressedButtonIndex(-1);
 
             
             var evtObj = $.Event("phonebuttonpress", {
-                "target" : this.element,
-                
+                "target" : this.element
             });
             
             evtObj.buttonName = buttonName;
@@ -439,12 +600,13 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
         },
         
         /**
-         * Find the button from an array which is at a given position
+         * Look through an array of buttons to find the one which is at this
+         * x/y position.
          * 
-         * @param {number} x 
-         * @param {number} y
-         * @param {Array<$UstadJSMicroEmuButton>} Array of buttons to look in
-         * @returns {number}
+         * @param {number} x the x coord
+         * @param {number} y the y coord
+         * @param {Array<$UstadJSMicroEmuButton>} [buttonArr] of buttons to look in, this._buttons by default
+         * @returns {number} the index of the button in the array, -1 if it's not there
          */
         getbuttonforposition: function(x, y, buttonArr) {
             buttonArr = (typeof buttonArr !== "undefined") ? buttonArr : this._buttons;
@@ -457,6 +619,13 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             return -1;
         },
         
+        /**
+         * Used to get the position of a mouseevent relative to it's target 
+         * element
+         * 
+         * @param {MouseEvent} evt
+         * @returns {Object} object wtih x and y coords relative to evt.target
+         */
         getOffsetPosForEvt: function(evt) {
             return {
                 x: evt.pageX - $(evt.target).offset().left,
@@ -464,6 +633,12 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             };
         },
         
+        /**
+         * Handle user mouse move and so we can show the appropriate over clip
+         * 
+         * @param {type} evt
+         * @returns {undefined}
+         */
         handleMouseMove: function(evt) {
             evt.preventDefault();
             var mousePos = this.getOffsetPosForEvt(evt);
@@ -479,6 +654,11 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             $UstadJSMicroEmu.updateCanvas(this.paintCanvas.bind(this));
         },
         
+        /**
+         * Handle when the mouse goes down (show pressed button)
+         * 
+         * @param {MouseEvent} evt
+         */
         handleMouseDown: function(evt) {
             evt.preventDefault();
             var mousePos = this.getOffsetPosForEvt(evt);
@@ -491,6 +671,13 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             $UstadJSMicroEmu.updateCanvas(this.paintCanvas.bind(this));
         },
         
+        /**
+         * Set the button that is being pushed by the mouse (can come from
+         * clicking on canvas directly or clicking on the menubar
+         * 
+         * @param {Number} newIndex the new index that is being clicked on
+         * 
+         */
         _setMousePressedButtonIndex: function(newIndex) {
             if(this._mousePressedKeyIndex !== -1) {
                 var pressedButton = this._buttons[this._mousePressedKeyIndex];
@@ -507,6 +694,11 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             this._mousePressedKeyIndex = newIndex;
         },
         
+        /**
+         * Handle mouse up event - unpress button if one is pressed
+         * 
+         * @param {MouseEvent} evt
+         */
         handleMouseUp: function(evt) {
             evt.preventDefault();
             if(this._mousePressedKeyIndex !== -1) {
@@ -517,6 +709,11 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             $UstadJSMicroEmu.updateCanvas(this.paintCanvas.bind(this));
         },
         
+        /**
+         * Handle mouse click on  the canvas - fire event for button push
+         * 
+         * @param {MouseEvent} evt
+         */
         handleMouseClick: function(evt) {
             evt.preventDefault();
             var mousePos = this.getOffsetPosForEvt(evt);
@@ -525,7 +722,7 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             var pressedButton = this._buttons[pressedButtonIndex];
             if(pressedButton) {
                 var evtObj = $.Event("phonebuttonpress", {
-                    "target" : this.element,
+                    "target" : this.element
                 });
                 evtObj.buttonName = pressedButton.name;
                 this.handlePhoneButtonPress(evtObj);
@@ -534,6 +731,13 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             this._checkfocus();
         },
         
+        /**
+         * Handle when one of the skin images has loaded  - if all have
+         * loaded trigger _handleAllImagesLoaded
+         * 
+         * @param {ProgressEvent} evt
+         * @returns {undefined}
+         */
         handlePhoneImageLoaded: function(evt) {
             var imgEl = evt.target;
             var imgTypeName = imgEl.getAttribute("data-phoneimg-type");
@@ -580,6 +784,14 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             }
         },
         
+        /**
+         * Handle key down on selectable items - show pressed key for
+         * relevant button
+         * 
+         * Attached to the selectable items themselves - prevents losing focus
+         * 
+         * @param {KeyEvent} evt
+         */
         handleSelectableElementKeyDown: function(evt) {
             evt.preventDefault();
             var button = null;
@@ -595,6 +807,12 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             }
         },
         
+        /**
+         * Handle when key is up on a selectableElement - move to the next button
+         * and fire an event if this is a recognized button
+         * 
+         * @param {KeyEvent} evt
+         */
         handleSelectableElementKeyUp: function(evt) {
             evt.preventDefault();
             
@@ -617,15 +835,23 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             
         },
         
+        /**
+         * Sets the selectable container from which elements will be looked
+         * for.
+         * 
+         * @param {Element} selectableContainer
+         */
         setselectablecontainer: function(selectableContainer) {
             this.selectableContainer = selectableContainer;
             this.updateselectable();
         },
         
         /**
-         * When the contents of the selectable container change - run this
+         * When the contents of the selectable container change - run this.
          * 
-         * @returns {undefined}
+         * Looks for selectable elements within the selectable container
+         * and updates the menubar
+         * 
          */
         updateselectable: function() {
             this.selectableElements = $(this.selectableContainer).find(
@@ -647,6 +873,11 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             this.updatemenubar();
         },
         
+        /**
+         * Make sure that the last selected item still has focus - useful if
+         * the user clicks outside etc.
+         * 
+         */
         _checkfocus: function() {
             if(this.selectableElements.length > 0) {
                 var currentEl = this.selectableElements[this.selectedElementIndex];
@@ -665,15 +896,31 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             return this.selectedElementIndex;
         },
         
+        /**
+         * Gets the selectable elements array found on the current selectable container
+         * 
+         * @returns {Array<Element>}
+         */
         getselectableelements: function() {
             return this.selectableElements;
         },
         
+        /**
+         * Gets the currently selected element within the selectable container
+         * if there is one
+         * 
+         * @return {Number} index of hte selected item or -1 if there are none to select from
+         */
         getselectedelement: function() {
             return this.selectedElementIndex !== -1 ?
                 this.selectableElements[this.selectedElementIndex ] : null;
         },
         
+        /**
+         * Update the menu bar - in particular the middle select key for the
+         * currently selected item
+         * 
+         */
         updatemenubar: function() {
             var middleMenuText = this.options.menubutton_labels.middle;
             
@@ -690,6 +937,14 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             this.element.find(".umjs-microemu-menu-middle").text(middleMenuText);
         },
         
+        /**
+         * Load a MicroEMU device.xml skin from the given URL
+         * 
+         * @param {String} url the URL to load from 
+         * @param {Object} options misc options space - currently not used
+         * @param {function} successFn function to run once successfully setup
+         * @param {function} failFn function to run if fails - e.g. image not found
+         */
         loadmicroemuskin: function(url, options, successFn, failFn) {
             this.options.assetBaseURL = UstadJS.resolveURL(document.location.href,
                 url);
@@ -703,6 +958,12 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             }).bind(this)).fail(failFn);
         },
         
+        /**
+         * Clip the canvas context according to a given button
+         * 
+         * @param {2DContext} ctx
+         * @param {$UstadJSMicroEMUButton} button
+         */
         _clipContextForButton: function(ctx, button) {
             var coords = [];
             if(button.shape instanceof $UstadJSMicroEmuButton.Polygon) {
@@ -728,6 +989,11 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             ctx.clip();
         },
         
+        /**
+         * Paint the skin of the phone on the canvas and show pressed and over
+         * keys
+         * 
+         */
         paintCanvas: function() {
             var ctx = this.canvas.getContext("2d");
             ctx.save();
@@ -754,10 +1020,20 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             ctx.restore();
         },
         
+        /**
+         * Get the canvas being used to show the phone skin
+         * 
+         * @returns {Canvas}
+         */
         getcanvas: function() {
             return this.canvas;
         },
         
+        /**
+         * Get the paintable area div in which items can be placed
+         * 
+         * @returns {Element}
+         */
         paintablearea: function() {
             return this.paintableElement;
         }
