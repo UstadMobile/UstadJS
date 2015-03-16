@@ -12,6 +12,16 @@
 var $UstadJSMicroEmu = {
     IMG_STATES : ["normal", "over", "pressed"],
     
+    KEYCODES_TO_BUTTONNAME: {
+        "40" : "DOWN",
+        "38" : "UP",
+        "13" : "SELECT"
+    },
+    
+    KEYCODE_DOWN : 40,
+    
+    KEYCODE_UP : 38,
+    
     updateCanvas: function (func) {
         var fn2Use = window.requestAnimationFrame || 
             window.webkitRequestAnimationFrame || 
@@ -56,13 +66,7 @@ $UstadJSMicroEmuButton.makeButtonObjFromXML = function(xmlEl) {
         buttonObj.shape = new $UstadJSMicroEmuButton.Polygon(pts);
     }else if(xmlEl.getElementsByTagName("rectangle").length > 0) {
         var rectEl = xmlEl.getElementsByTagName("rectangle")[0];
-        var attrs = ["x", "y", "width", "height"];
-        var coords = {};
-        for(var j = 0; j < attrs.length; j++) {
-            coords[attrs[j]] = 
-                parseInt(rectEl.getElementsByTagName(attrs[j])[0].textContent);
-        }
-        buttonObj.shape = new $UstadJSMicroEmuButton.Rectangle(coords);
+        buttonObj.shape = $UstadJSMicroEmuButton.Rectangle.makeFromXMLEl(rectEl);
     }
 
     return buttonObj;
@@ -73,6 +77,23 @@ $UstadJSMicroEmuButton.Rectangle = function(coords) {
     this.y = coords.y;
     this.width = coords.width;
     this.height = coords.height;
+};
+
+/**
+ * Make a rectangle object from an xml element with x, y, width, height
+ * params as is found in device.xml files for MicroEmu
+ * 
+ * @param {type} xmlEl
+ * @returns {undefined}
+ */
+$UstadJSMicroEmuButton.Rectangle.makeFromXMLEl = function(xmlEl) {
+    var attrs = ["x", "y", "width", "height"];
+    var coords = {};
+    for(var j = 0; j < attrs.length; j++) {
+        coords[attrs[j]] = 
+            parseInt(xmlEl.getElementsByTagName(attrs[j])[0].textContent);
+    }
+    return new $UstadJSMicroEmuButton.Rectangle(coords);
 };
 
 $UstadJSMicroEmuButton.Rectangle.prototype.containsPoint = function(x, y) {
@@ -113,6 +134,28 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
     
     
     /**
+     * Widget to create an UstadJSMicroEMU instance
+     * 
+     * Example:
+     * 
+     * $(".selector").microemu("loadmicroemuskin", 
+     *  "/url/to/device.xml", {}, function() {
+     *      //success fn when loaded - needs to wait until the skin file and images have loaded
+     *      
+     *      //get the div positioned on the paintable screen area
+     *      var paintableScreenDiv = $(".selector").microemu("paintablearea");
+     *      
+     *      paintableScreenDiv.append("<iframe src...");
+     *      
+     *      //now set where selectable components are that the arrows control focus
+     *      $(".selector").microemu("setselectablecontainer", 
+     *          someIframe.contentDocument);
+     *      
+     *  }, function(err) {
+     *  
+     *  });
+     * 
+     * 
      *
      * @class UstadJSOPDSBrowser
      * @memberOf jQuery.fn
@@ -131,7 +174,15 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
         
         _mousePressedKeyIndex: -1,
         
-        repaintInterval : null,
+        /**
+         * The index of the element in selectableElementContainer that has 
+         * focus
+         * @type {number}
+         */
+        focusedElementIndex: -1,
+        
+        /** The selectable elements found in selectableElementContainer */
+        selectableElements: [],
         
         options : {
             /** The XML Document with the MicroEmu skin descriptor */
@@ -153,11 +204,17 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             
             height: 0,
             
+            screenAreaElement: null,
+            
+            menubarAreaElement: null,
+            
             /** Element that shows the virtual phone screen */
             paintableElement: null,
             
             /** Elements that can be selected are looked for in here */
-            selectableContainer: null 
+            selectableContainer: null ,
+            
+            selectableElementSelector: "input, button",
         },
         
         _create: function() {
@@ -184,6 +241,7 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
          */
         setupmicroemuskin: function(skin, options) {
             skin = UstadJS.ensureXML(skin);
+            this.options.microEMUSkinXML = skin;
             
             this.options.imgSrcs = {};
             this.options.imgs = {};
@@ -251,16 +309,58 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             this.canvas.addEventListener("mouseup",
                 this.handleMouseUp.bind(this), true);
             
+            this.canvas.addEventListener("click",
+                this.handleMouseClick.bind(this), true);
+            
             var evt = jQuery.Event( "loaded", { microemu: this} );
             $(this.element).trigger("loaded", evt);
             
-            /*this.repaintInterval = setInterval(this.paintCanvas.bind(this),
-                150);*/
+            //setup the paintable element
+            this.paintableElement = document.createElement("div");
+            this.paintableElement.style.position = "absolute";
+            var displayEl = this.options.microEMUSkinXML.querySelector("display");
+            var displayRect = $UstadJSMicroEmuButton.Rectangle.makeFromXMLEl(
+                this.options.microEMUSkinXML.querySelector("display > rectangle"));
+            
+            var paintableRect = $UstadJSMicroEmuButton.Rectangle.makeFromXMLEl(
+                this.options.microEMUSkinXML.querySelector("display > paintable"));
+            
+            this.paintableElement.style.marginLeft = 
+                (displayRect.x + paintableRect.x) + "px";
+            this.paintableElement.style.marginTop =
+                (displayRect.y + paintableRect.y) + "px";
+            this.paintableElement.style.width = paintableRect.width + "px";
+            this.paintableElement.style.height = paintableRect.height + "px";
+            
+            this.paintableElement.style.border = "1px solid black";
+            
+            this.paintableElement.style.zIndex = 10000;
+            this.paintableElement.innerHTML = "HI WORLD";
+            
+            //now make the menubar element
+            this.menubarElement = document.createElement("div");
+            this.menubarElement.style.position = "absolute";
+            this.menubarElement.style.marginLeft = 
+                (displayRect.x + paintableRect.x) + "px";
+            this.menubarElement.style.marginTop =
+                (displayRect.y + paintableRect.y + paintableRect.height) + "px";
+            this.menubarElement.style.width = paintableRect.width;
+            this.menubarElement.style.height = paintableRect.height;
+            this.menubarElement.innerHTML = "MENU";
+            
+            
+            $(this.element).prepend(this.paintableElement);
+            $(this.paintableElement).after(this.menubarElement);
+            
+            
             
             UstadJS.runCallback(this._setupCallbackSuccessFn, this, []);
             
             this._setupCallbackSuccessFn = null;
             this._setupCallbackFailFn = null;
+            
+            
+            
         },
         
         /**
@@ -282,12 +382,20 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             return -1;
         },
         
+        getOffsetPosForEvt: function(evt) {
+            return {
+                x: evt.pageX - $(evt.target).offset().left,
+                y : evt.pageY - $(evt.target).offset().top
+            };
+        },
+        
         handleMouseMove: function(evt) {
             evt.preventDefault();
-            this._mouseOverButtonIndex = this.getbuttonforposition(evt.offsetX,
-                evt.offsetY, this._buttons);
+            var mousePos = this.getOffsetPosForEvt(evt);
+            this._mouseOverButtonIndex = this.getbuttonforposition(mousePos.x,
+                mousePos.y, this._buttons);
             for(var i = 0; i < this._buttons.length; i++) {
-                if(i === this._mouseOverButtonIndex) {
+                if(i === this._mouseOverButtonIndex && this._buttons[i].state !== "pressed") {
                     this._buttons[i].state = "over";
                 }else {
                     this._buttons[i].state = "normal";
@@ -298,8 +406,9 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
         
         handleMouseDown: function(evt) {
             evt.preventDefault();
-            var newPress = this.getbuttonforposition(evt.offsetX,
-                evt.offsetY, this._buttons);
+            var mousePos = this.getOffsetPosForEvt(evt);
+            var newPress = this.getbuttonforposition(mousePos.x,
+                mousePos.y, this._buttons);
             if(newPress !== -1) {
                 if(this._mousePressedKeyIndex !== -1 && this._mousePressedKeyIndex !== newPress) {
                     this._buttons[this._mousePressedKeyIndex].state = "normal";
@@ -322,6 +431,21 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             $UstadJSMicroEmu.updateCanvas(this.paintCanvas.bind(this));
         },
         
+        handleMouseClick: function(evt) {
+            evt.preventDefault();
+            var mousePos = this.getOffsetPosForEvt(evt);
+            var pressedButtonIndex = this.getbuttonforposition(mousePos.x,
+                mousePos.y);
+            var pressedButton = this._buttons[pressedButtonIndex];
+            if(pressedButton) {
+                var evtObj = $.Event("phonebuttonpress", {
+                    "target" : this.element,
+                });
+                evtObj.buttonName = pressedButton.name;
+                this.handlePhoneButtonPress(evtObj);
+            }
+        },
+        
         handlePhoneImageLoaded: function(evt) {
             var imgEl = evt.target;
             var imgTypeName = imgEl.getAttribute("data-phoneimg-type");
@@ -339,6 +463,122 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             }
         },
         
+        /**
+         * Handle when the user has pressed a phone button
+         * 
+         * @param {type} evt
+         * @returns {undefined}
+         */
+        handlePhoneButtonPress: function(evt) {
+            var hasSelectableElements = this.selectedElementIndex !== -1;
+            if(hasSelectableElements) {
+                var selectedElement = this.selectableElements[
+                    this.selectedElementIndex];
+                if(evt.buttonName === "UP" || evt.buttonName === "DOWN") {
+                    var increment = evt.buttonName === "UP" ? -1 : 1;
+                    this.selectedElementIndex += increment;
+                    if(this.selectedElementIndex < 0) {
+                        this.selectedElementIndex = 
+                        this.selectableElements.length-1;
+                    }else if(this.selectedElementIndex >= this.selectableElements.length) {
+                        this.selectedElementIndex = 0;
+                    }
+
+                    $(this.selectableElements[
+                        this.selectedElementIndex]).focus();
+                }else if(evt.buttonName === "SELECT") {
+                    $(selectedElement).trigger("click");
+                }
+            }
+        },
+        
+        handleSelectableElementKeyDown: function(evt) {
+            evt.preventDefault();
+            var button = null;
+            var whichStr = ""+evt.which;
+            if($UstadJSMicroEmu.KEYCODES_TO_BUTTONNAME[whichStr]) {
+                button = this.getbuttonbyname(
+                    $UstadJSMicroEmu.KEYCODES_TO_BUTTONNAME[whichStr]);
+            }
+            
+            if(button) {
+                button.state = "pressed";
+                $UstadJSMicroEmu.updateCanvas(this.paintCanvas.bind(this));
+            }
+        },
+        
+        handleSelectableElementKeyUp: function(evt) {
+            evt.preventDefault();
+            
+            var button = null;
+            var whichStr = ""+evt.which;
+            if($UstadJSMicroEmu.KEYCODES_TO_BUTTONNAME[whichStr]) {
+                button = this.getbuttonbyname(
+                    $UstadJSMicroEmu.KEYCODES_TO_BUTTONNAME[whichStr]);
+            }
+            
+            if(button) {
+                button.state = "normal";
+                $UstadJSMicroEmu.updateCanvas(this.paintCanvas.bind(this));
+                var evtObj = $.Event("phonebuttonpress", {
+                    "target" : this.element,
+                });
+                evtObj.buttonName = button.name;
+                this.handlePhoneButtonPress(evtObj);
+            }
+            
+        },
+        
+        setselectablecontainer: function(selectableContainer) {
+            this.selectableContainer = selectableContainer;
+            this.updateselectable();
+        },
+        
+        /**
+         * When the contents of the selectable container change - run this
+         * 
+         * @returns {undefined}
+         */
+        updateselectable: function() {
+            this.selectableElements = $(this.selectableContainer).find(
+                this.options.selectableElementSelector);
+            if(this.selectableElements.length > 0) {
+                this.selectedElementIndex = 0;
+                for(var i = 0; i < this.selectableElements.length; i++) {
+                    this.selectableElements[i].onkeydown = 
+                        this.handleSelectableElementKeyDown.bind(this);
+                    
+                    this.selectableElements[i].onkeyup = 
+                        this.handleSelectableElementKeyUp.bind(this);
+                }
+                
+            }else {
+                this.selectedElementIndex = -1;
+            }
+            
+            this.updatemenubar();
+        },
+        
+        /**
+         * Get the selected index from selectable elements
+         * 
+         * @returns {Number} index of currently selected component, or -1 if there are none currently
+         */
+        getselectedindex: function() {
+            return this.selectedElementIndex;
+        },
+        
+        getselectableelements: function() {
+            return this.selectableElements;
+        },
+        
+        updatemenubar: function() {
+            if(this.selectedElementIndex !== -1) {
+                var selectedEl = this.selectableElements[
+                    this.selectedElementIndex];
+                $(selectedEl).focus();
+            }
+        },
         
         loadmicroemuskin: function(url, options, successFn, failFn) {
             this.options.assetBaseURL = UstadJS.resolveURL(document.location.href,
@@ -406,6 +646,10 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
         
         getcanvas: function() {
             return this.canvas;
+        },
+        
+        paintablearea: function() {
+            return this.paintableElement;
         }
         
         
