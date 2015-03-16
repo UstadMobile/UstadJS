@@ -12,6 +12,10 @@ var UstadMicroTestOpts = {
     upButtonPos: {
         x: 62,
         y: 151
+    },
+    selectButtonPos: {
+        x: 70,
+        y: 160
     }
 };
 
@@ -23,7 +27,7 @@ var UstadMicroTestOpts = {
 function testUstadJSMicroEmu() {
     QUnit.test("MicroEmu setup tests", function(assert) {
         var microSetupDoneFn = assert.async();
-        assert.expect(15);
+        assert.expect(19);
         
         
         $("#test_microemu").microemu("loadmicroemuskin", 
@@ -150,6 +154,59 @@ function testUstadJSMicroEmu() {
                     assert.equal($("#test_microemu").microemu(
                         "getselectedindex"), 0, 
                         "Pressing keyboard event moves selection down");
+                    
+                    var fakeEvtSelect = {
+                        "pageX": UstadMicroTestOpts.selectButtonPos.x
+                                +canvasOffset.left,
+                        "pageY": UstadMicroTestOpts.selectButtonPos.y 
+                                + canvasOffset.top,
+                        "target" : $("#test_microemu").microemu("getcanvas"),
+                        preventDefault: function() {}
+                    };
+                    
+                    $("#test_microemu").microemu("handleMouseClick", 
+                        fakeEvtSelect);
+                    assert.ok(
+                        $("#test_microemu").microemu("getselectedelement").checked,
+                        "After clicking middle button item gets selected");
+                    //try 'clicking' on menubuar
+                    
+                    //test getindexofbutton
+                    var upButton = $("#test_microemu").microemu(
+                        "getbuttonforposition", UstadMicroTestOpts.upButtonPos.x,
+                        UstadMicroTestOpts.upButtonPos.y);
+                    var upButtonIndex =  $("#test_microemu").microemu(
+                        "getindexofbutton", upButton);
+                    assert.equal(
+                        $("#test_microemu").microemu("getbuttonbyindex").name,
+                        upButton.name, "Button index fns OK");
+                    
+                    //test using the menubar - move down - change selection
+                    $("#test_microemu").microemu("handleSelectableElementKeyDown",
+                        fakeKeyDownEvt);
+                    var selectTargetEl = $("#test_microemu").find(
+                        ".umjs-microemu-menu-middle").get(0);
+                    var fakeMenubarEvt = {
+                        target: selectTargetEl,
+                        preventDefault: function(){}
+                    };
+                    
+                    //move down
+                    $("#test_microemu").microemu("handleMouseClick", fakeEvtDown);
+                    
+                    $("#test_microemu").microemu("handleMenuBarMouseDown", 
+                        fakeMenubarEvt);
+                    assert.equal($("#test_microemu").microemu("getbuttonbyname",
+                        "SELECT").state, "pressed",
+                        "Mousedown on menubar select presses select");
+                    
+                    
+                    $("#test_microemu").microemu("handleMenuBarMouseUp", 
+                        fakeMenubarEvt);
+                    
+                    assert.equal( 
+                        $("#test_microemu").microemu("getselectedelement").checked,
+                        true, "Clicking on select on menubar selects item");
                     
                     setTimeout(microSetupDoneFn, 1000);
                 });

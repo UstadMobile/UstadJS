@@ -1,0 +1,25 @@
+.umjs-microemu-menutable {
+    background-color: gray;
+    color: white;
+    font: 8pt arial, sans-serif;
+    width: 100%;
+    height: 100%;
+}
+
+.umjs-microemu-menutable td {
+    width: 33%;
+}
+
+.umjs-microemu-menu-middle {
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    text-align: center;
+}
+
+.umjs-microemu-menu-left {
+    text-align: left;
+}
+
+.umjs-microemu-menu-right {
+    text-align: right;
+}

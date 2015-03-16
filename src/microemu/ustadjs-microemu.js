@@ -215,6 +215,14 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             selectableContainer: null ,
             
             selectableElementSelector: "input, button",
+            
+            menubutton_labels: {
+                "left" : "Options",
+                /* Default for the form in case no selectable item is focused */
+                "middle" : "OK",
+                "right" : "Opt1",
+                "select" : "Select"
+            }
         },
         
         _create: function() {
@@ -231,6 +239,18 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             }
             
             return null;
+        },
+        
+        getbuttonbyindex: function(index) {
+            return this._buttons[index];
+        },
+        
+        getindexofbutton: function(button) {
+            for(var i = 0; i < this._buttons.length; i++) {
+                if(this._buttons[i].name === button.name) {
+                    return i;
+                }
+            }
         },
         
         /**
@@ -332,7 +352,7 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             this.paintableElement.style.width = paintableRect.width + "px";
             this.paintableElement.style.height = paintableRect.height + "px";
             
-            this.paintableElement.style.border = "1px solid black";
+            //this.paintableElement.style.border = "1px solid black";
             
             this.paintableElement.style.zIndex = 10000;
             this.paintableElement.innerHTML = "HI WORLD";
@@ -344,23 +364,78 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
                 (displayRect.x + paintableRect.x) + "px";
             this.menubarElement.style.marginTop =
                 (displayRect.y + paintableRect.y + paintableRect.height) + "px";
-            this.menubarElement.style.width = paintableRect.width;
-            this.menubarElement.style.height = paintableRect.height;
-            this.menubarElement.innerHTML = "MENU";
+            this.menubarElement.style.width = paintableRect.width + "px";
+            this.menubarElement.style.height = displayRect.height - 
+                (paintableRect.height + paintableRect.y) + "px";
+            var menuTableEl = $("<table/>", {
+                class: "umjs-microemu-menutable",
+                width : "100%"
+            });
+            menuTableEl.css("height", this.menubarElement.style.height);
+            $(menuTableEl).get(0).addEventListener("click", (function(evt) {
+                this._checkfocus();
+            }).bind(this), false);
             
+            var menuTableTr = $("<tr/>",{
+                class: "umjs-microemu-menutable-tr"
+            }).appendTo(menuTableEl);
+            
+            
+            var menuAreas = ["left", "middle", "right"];
+            var keyMaps = ["SOFT1", "SELECT", "SOFT2"];
+            
+            for(var i = 0; i < menuAreas.length; i++) {
+                var menuTd = $("<td/>", {
+                    class: "umjs-microemu-menuarea umjs-microemu-menu-" +
+                            menuAreas[i]
+                }).appendTo(menuTableTr).text(
+                    this.options.menubutton_labels[menuAreas[i]]);
+                $(menuTd).attr("data-umjs-microemu-key", keyMaps[i]);
+                $(menuTd).get(0).addEventListener("mousedown",
+                    this.handleMenuBarMouseDown.bind(this), true);
+                $(menuTd).get(0).addEventListener("mouseup",
+                    this.handleMenuBarMouseUp.bind(this), true);
+            }
+            
+            $(this.menubarElement).append(menuTableEl);
             
             $(this.element).prepend(this.paintableElement);
             $(this.paintableElement).after(this.menubarElement);
-            
-            
             
             UstadJS.runCallback(this._setupCallbackSuccessFn, this, []);
             
             this._setupCallbackSuccessFn = null;
             this._setupCallbackFailFn = null;
+        },
+        
+        handleMenuBarMouseDown: function(evt) {
+            evt.preventDefault();
+            var evtObj = $.Event("phonebuttonpress", {
+                "target" : this.element,
+            });
+            var buttonName = evt.target.getAttribute("data-umjs-microemu-key");
+            var buttonObj = this.getbuttonbyname(buttonName);
+            var buttonIndex = this.getindexofbutton(buttonObj);
             
+            this._setMousePressedButtonIndex(buttonIndex);
+            $UstadJSMicroEmu.updateCanvas(this.paintCanvas.bind(this));
+        },
+        
+        handleMenuBarMouseUp: function(evt) {
+            evt.preventDefault();
+            var buttonName = evt.target.getAttribute("data-umjs-microemu-key");
+            var buttonObj = this.getbuttonbyname(buttonName);
+            this._setMousePressedButtonIndex(-1);
+
             
+            var evtObj = $.Event("phonebuttonpress", {
+                "target" : this.element,
+                
+            });
             
+            evtObj.buttonName = buttonName;
+            $UstadJSMicroEmu.updateCanvas(this.paintCanvas.bind(this));
+            this.handlePhoneButtonPress(evtObj);
         },
         
         /**
@@ -409,16 +484,27 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             var mousePos = this.getOffsetPosForEvt(evt);
             var newPress = this.getbuttonforposition(mousePos.x,
                 mousePos.y, this._buttons);
-            if(newPress !== -1) {
-                if(this._mousePressedKeyIndex !== -1 && this._mousePressedKeyIndex !== newPress) {
-                    this._buttons[this._mousePressedKeyIndex].state = "normal";
-                }
-                
-                this._buttons[newPress].state = "pressed";
-                this._mousePressedKeyIndex = newPress;
-            }
+            
+            this._setMousePressedButtonIndex(newPress);
+            
             
             $UstadJSMicroEmu.updateCanvas(this.paintCanvas.bind(this));
+        },
+        
+        _setMousePressedButtonIndex: function(newIndex) {
+            if(this._mousePressedKeyIndex !== -1) {
+                var pressedButton = this._buttons[this._mousePressedKeyIndex];
+                if(pressedButton.state === "pressed") {
+                    pressedButton.state = "normal";
+                }
+            }
+            
+            if(newIndex !== -1) {
+                var newPressedButton = this._buttons[newIndex];
+                newPressedButton.state = "pressed";
+            }
+            
+            this._mousePressedKeyIndex = newIndex;
         },
         
         handleMouseUp: function(evt) {
@@ -444,6 +530,8 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
                 evtObj.buttonName = pressedButton.name;
                 this.handlePhoneButtonPress(evtObj);
             }
+            
+            this._checkfocus();
         },
         
         handlePhoneImageLoaded: function(evt) {
@@ -521,7 +609,7 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
                 button.state = "normal";
                 $UstadJSMicroEmu.updateCanvas(this.paintCanvas.bind(this));
                 var evtObj = $.Event("phonebuttonpress", {
-                    "target" : this.element,
+                    "target" : this.element
                 });
                 evtObj.buttonName = button.name;
                 this.handlePhoneButtonPress(evtObj);
@@ -559,6 +647,15 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             this.updatemenubar();
         },
         
+        _checkfocus: function() {
+            if(this.selectableElements.length > 0) {
+                var currentEl = this.selectableElements[this.selectedElementIndex];
+                if(currentEl.ownerDocument.activeElement !== currentEl) {
+                    $(currentEl).focus();
+                }
+            }
+        },
+        
         /**
          * Get the selected index from selectable elements
          * 
@@ -572,12 +669,25 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             return this.selectableElements;
         },
         
+        getselectedelement: function() {
+            return this.selectedElementIndex !== -1 ?
+                this.selectableElements[this.selectedElementIndex ] : null;
+        },
+        
         updatemenubar: function() {
+            var middleMenuText = this.options.menubutton_labels.middle;
+            
             if(this.selectedElementIndex !== -1) {
                 var selectedEl = this.selectableElements[
                     this.selectedElementIndex];
                 $(selectedEl).focus();
+                
+                middleMenuText = selectedEl.hasAttribute(
+                    "data-umjs-microemu-msk-label") ? 
+                    selectedEl.getAttribute("data-umjs-microemu-msk-label") :
+                    this.options.menubutton_labels.select;
             }
+            this.element.find(".umjs-microemu-menu-middle").text(middleMenuText);
         },
         
         loadmicroemuskin: function(url, options, successFn, failFn) {
