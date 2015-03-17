@@ -309,6 +309,13 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             height: 0,
             
             /**
+             * The scale to apply to buttons and images
+             * 
+             * @type {Number}
+             */
+            scale: 1.0,
+            
+            /**
              * An element that contains the screen area (containing the paintable
              * area and menubar area)
              * 
@@ -457,6 +464,15 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             }
         },
         
+        /**
+         * Multiply by the scale and round off the number provided
+         * 
+         * @param {Number} num
+         * @returns {Number} num * scale rounded to nearest integer
+         */
+        _scaleNum: function(num) {
+            return Math.round(num * this.options.scale);
+        },
         
         /**
          * 
@@ -470,8 +486,8 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             }
             this.loadedEvtFired = true;
             
-            this.options.width = this.options.imgs.normal.width;
-            this.options.height = this.options.imgs.normal.height;
+            this.options.width = this._scaleNum(this.options.imgs.normal.width);
+            this.options.height = this._scaleNum(this.options.imgs.normal.height);
             
             //now create the canvas
             this.canvas = document.createElement("canvas");
@@ -506,11 +522,13 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
                 this.options.microEMUSkinXML.querySelector("display > paintable"));
             
             this.paintableElement.style.marginLeft = 
-                (displayRect.x + paintableRect.x) + "px";
+                this._scaleNum(displayRect.x + paintableRect.x) + "px";
             this.paintableElement.style.marginTop =
-                (displayRect.y + paintableRect.y) + "px";
-            this.paintableElement.style.width = paintableRect.width + "px";
-            this.paintableElement.style.height = paintableRect.height + "px";
+                this._scaleNum(displayRect.y + paintableRect.y) + "px";
+            this.paintableElement.style.width = this._scaleNum(
+                paintableRect.width) + "px";
+            this.paintableElement.style.height = this._scaleNum(
+                    paintableRect.height) + "px";
             
             //this.paintableElement.style.border = "1px solid black";
             
@@ -521,12 +539,14 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             this.menubarElement = document.createElement("div");
             this.menubarElement.style.position = "absolute";
             this.menubarElement.style.marginLeft = 
-                (displayRect.x + paintableRect.x) + "px";
+                this._scaleNum(displayRect.x + paintableRect.x) + "px";
             this.menubarElement.style.marginTop =
-                (displayRect.y + paintableRect.y + paintableRect.height) + "px";
-            this.menubarElement.style.width = paintableRect.width + "px";
-            this.menubarElement.style.height = displayRect.height - 
-                (paintableRect.height + paintableRect.y) + "px";
+                this._scaleNum(displayRect.y + paintableRect.y + paintableRect.height) + "px";
+            this.menubarElement.style.width = 
+                this._scaleNum(paintableRect.width) + "px";
+            this.menubarElement.style.height = 
+                this._scaleNum(displayRect.height - 
+                (paintableRect.height + paintableRect.y)) + "px";
             var menuTableEl = $("<table/>", {
                 class: "umjs-microemu-menutable",
                 width : "100%"
@@ -634,10 +654,14 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
          * @returns {Object} object wtih x and y coords relative to evt.target
          */
         getOffsetPosForEvt: function(evt) {
-            return {
+            var offsetVal =  {
                 x: evt.pageX - $(evt.target).offset().left,
                 y : evt.pageY - $(evt.target).offset().top
             };
+            offsetVal.x = Math.round(offsetVal.x / this.options.scale);
+            offsetVal.y = Math.round(offsetVal.y / this.options.scale);
+            
+            return offsetVal;
         },
         
         /**
@@ -990,11 +1014,19 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
                 ];
             }
 
+            var scaledCoords = [];
+            for(var i = 0; i < coords.length; i++) {
+                scaledCoords.push({
+                    x : this._scaleNum(coords[i].x),
+                    y : this._scaleNum(coords[i].y)
+                });
+            }
+            
             ctx.beginPath();
-            ctx.moveTo(coords[0].x, 
-                coords[0].y);
-            for(var i = 1; i < coords.length; i++) {
-                ctx.lineTo(coords[i].x, coords[i].y);
+            ctx.moveTo(scaledCoords[0].x, 
+                scaledCoords[0].y);
+            for(var i = 1; i < scaledCoords.length; i++) {
+                ctx.lineTo(scaledCoords[i].x, scaledCoords[i].y);
             }
             ctx.closePath();
             ctx.clip();
@@ -1011,20 +1043,23 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             ctx.fillStyle = "#ffffff";
             ctx.fill();
             
-            ctx.drawImage(this.options.imgs.normal, 0, 0);
+            ctx.drawImage(this.options.imgs.normal, 0, 0, this.options.width,
+                this.options.height);
             
             //paint the over image
             if(this._mouseOverButtonIndex !== -1) {
                 var overButton = this._buttons[this._mouseOverButtonIndex];
                 this._clipContextForButton(ctx, overButton);
-                ctx.drawImage(this.options.imgs.over, 0, 0);
+                ctx.drawImage(this.options.imgs.over, 0, 0, this.options.width,
+                    this.options.height);
             }
             
             //paint pressed keys
             for(var i = 0; i < this._buttons.length; i++) {
                 if(this._buttons[i].state === "pressed") {
                     this._clipContextForButton(ctx, this._buttons[i]);
-                    ctx.drawImage(this.options.imgs.pressed, 0, 0);
+                    ctx.drawImage(this.options.imgs.pressed, 0, 0, 
+                        this.options.width,this.options.height);
                 }
             }
             

@@ -1,23 +1,29 @@
+
+var UstadMicroTestOpts = {
+    scale: 1.2,
+};
+
+UstadMicroTestOpts.downButtonPos = {
+    x: Math.round(64 * UstadMicroTestOpts.scale),
+    y: Math.round(174 * UstadMicroTestOpts.scale)
+};
+UstadMicroTestOpts.upButtonPos = {
+    x: Math.round(62 * UstadMicroTestOpts.scale),
+    y: Math.round(151* UstadMicroTestOpts.scale)
+};  
+UstadMicroTestOpts.selectButtonPos = {
+    x: Math.round(70 * UstadMicroTestOpts.scale),
+    y: Math.round(160 * UstadMicroTestOpts.scale)
+};
+
 QUnit.module("UstadJS", {
     setup: function() {
-        $("#test_microemu").microemu();
+        $("#test_microemu").microemu({
+            "scale" : UstadMicroTestOpts.scale
+        });
     }
 });
 
-var UstadMicroTestOpts = {
-    downButtonPos: {
-        x: 64,
-        y: 174
-    },
-    upButtonPos: {
-        x: 62,
-        y: 151
-    },
-    selectButtonPos: {
-        x: 70,
-        y: 160
-    }
-};
 
 
 (function() {    
@@ -45,8 +51,10 @@ function testUstadJSMicroEmu() {
                 var canvasOffset = $(this.canvas).offset();
                 
                 var fakeEvt = {
-                    "pageX": 60 +canvasOffset.left,
-                    "pageY": 260 + canvasOffset.top,
+                    "pageX": Math.round(UstadMicroTestOpts.scale * 60) +
+                            canvasOffset.left,
+                    "pageY": Math.round(UstadMicroTestOpts.scale * 260) + 
+                            canvasOffset.top,
                     "target" : $("#test_microemu").microemu("getcanvas"),
                     preventDefault: function() {}
                 };
