@@ -146,7 +146,7 @@ UstadJS.resolveURL = function(baseURL, linkedURL) {
     }
     
     
-    var baseURLPath = UstadJS.getDirPath(baseURL);
+    var baseURLPath = UstadJS.getDirPath(UstadJS.removeQueryFromURL(baseURL));
     
     //get rid of trailing / - will be joined with a /
     baseURLPath = baseURLPath.lastIndexOf("/") === baseURLPath.length - 1 ? 

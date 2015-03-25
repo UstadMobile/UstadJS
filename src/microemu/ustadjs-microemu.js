@@ -1025,8 +1025,8 @@ $UstadJSMicroEmuButton.Polygon.prototype.containsPoint = function(x, y) {
             ctx.beginPath();
             ctx.moveTo(scaledCoords[0].x, 
                 scaledCoords[0].y);
-            for(var i = 1; i < scaledCoords.length; i++) {
-                ctx.lineTo(scaledCoords[i].x, scaledCoords[i].y);
+            for(var j = 1; j < scaledCoords.length; j++) {
+                ctx.lineTo(scaledCoords[j].x, scaledCoords[j].y);
             }
             ctx.closePath();
             ctx.clip();
