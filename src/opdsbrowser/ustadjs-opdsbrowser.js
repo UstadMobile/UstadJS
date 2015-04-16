@@ -166,18 +166,27 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
                 }
             ];
             
+            var feedItems = opdsSrc.getEntriesByLinkParams(null, 
+                "application/atom+xml", {mimeTypeByPrefix: true});
+            
+            for(var g = 0; g < feedItems.length; g++) {
+                
+            }
+            
+            
             for(var f = 0; f < feedInfo.length; f++) {
                 var feedType = feedInfo[f].type;
-                var feedElContainer= $("<div/>", {
-                    class : "umjs_opdsbrowser_" + feedType + "feeds"
+                var feedElContainer= $("<ul/>", {
+                    class : "umjs_opdsbrowser_" + feedType + "feeds",
+                    "data-role" : "listview",
+                    "data-inset" : "true"
                 });
                 
                 this[feedType + "FeedContainer"]  = feedElContainer;
                 this.element.append(feedElContainer);
                 
                 var feedList = opdsSrc.getEntriesByLinkParams(
-                    feedInfo[f].linkType,
-                    null);
+                    null, feedInfo[f].linkType);
                 for(var e = 0; e < feedList.length; e++) {
                     var elEntry = this._makeFeedElement(feedList[e],
                         feedType);
@@ -328,16 +337,22 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
          * @returns {$|jQuery}
          */
         _makeFeedElement: function(entry, feedType) {
-            var elEntry = $("<div/>", {
+            var elEntry = $("<li/>", {
                 class : "umjs_opdsbrowser_" + feedType + "feed_element",
                 "data-feed-id" : entry.id,
                 "data-feed-type" : feedType
             });
             
             elEntry.addClass("umjs_opdsbrowser_feedelement");
+            
+            var elLink = $("<a/>", {
+                "href" : "#"
+            });
+            elEntry.append(elLink);
+            
            
             var widgetObj = this;
-            elEntry.on("click", function(evt) {
+            elLink.on("click", function(evt) {
                 var clickedFeedId = $(this).attr("data-feed-id");
                 var clickedFeedType = $(this).attr("data-feed-type");
                 var evtName = clickedFeedType + "feedselected";
@@ -352,23 +367,32 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             //TODO: check the picture here
             var imgSrc = this.options["defaulticon_" + feedType + "feed"];
             
-            elEntry.append($("<img/>", {
+            elLink.append($("<img/>", {
                 "src": imgSrc,
-                "class": "umjs_opdsbrowser_" + feedType + "feed_img"
+                "class": "umjs_opdsbrowser_" + feedType + "feed_img ui-li-thumb"
             }));
             
-            var elTitleEntry = $("<div/>", {
+            var elTitleEntry = $("<h2/>", {
                 "class" : "umjs_opdsbrowser_" + feedType + "title"
             });
             elTitleEntry.text(entry.title);
-            elEntry.append(elTitleEntry);
+            
+            elLink.append(elTitleEntry);
             
             var elStatus = this.options.acquisitionstatushandler(entry.id, 
                 feedType);
+            //Disable this for now
+            /*
             elEntry.append(this._makeFeedElementStatusArea(entry.id, feedType,
                 elStatus));
-            
-            
+            */
+           
+            var providerAside = "<p>" +
+                "<img class='provider_logo' src=\"" + 
+                this.options.defaulticon_acquisitionfeed +
+                "\"/>" +
+                "By Author</p>";
+            elLink.append(providerAside);
             return elEntry;
         }
         

@@ -78,7 +78,7 @@ function testPathResolver() {
 
 function testOPDSFeed() {
     QUnit.test("Load and interpret opds feed", function(assert) {
-        assert.expect(18);
+        assert.expect(22);
         var opdsDoneFn = assert.async();
         
         $.ajax("assets/catalog1.opds", {
@@ -88,7 +88,8 @@ function testOPDSFeed() {
                 "assets/catalog1.opds");
             assert.ok(opdsObj.title, "Found course title");
             assert.ok(opdsObj.entries.length > 0, "OPDS catalog has entries");
-            
+            assert.ok(opdsObj.isAcquisitionFeed() === true, 
+                "catalog1.opds is an acquisition feed");
             
             
             var entry0Summary = opdsObj.entries[0].getSummary();
@@ -102,10 +103,23 @@ function testOPDSFeed() {
                 "The story of the son of the Bob",
                 "Got summary from first atom:summary item");
             
+            //make sure this has loaded the thumbnail
+            assert.equal(opdsObj.entries[0].getThumbnail(),
+                "/covers/4561.thmb.gif",
+                "Loaded correct thumbnail for entry 0");
+            
+            //make sure the fallback to the image works
+            assert.equal(opdsObj.entries[1].getThumbnail(),
+                "/covers/11241.lrg.jpg",
+                "Loaded image as thumbnail when no thumbnail itself is present");
+            
+            
             var entry1Summary = opdsObj.entries[1].getSummary();
             assert.equal(entry1Summary.substring(0, 28), 
                 "The definitive reference for",
                 "Got summary from the atom:content item when summary not present");
+                
+            
             
             var asString = opdsObj.toString();
             var opdsObj2 = UstadJSOPDSFeed.loadFromXML(asString, 
@@ -156,6 +170,9 @@ function testOPDSFeed() {
                 UstadJSOPDSEntry.TYPE_EPUBCONTAINER, true), "some/file.epub",
                 "Added link href can be found");
             
+            assert.equal(newEntry.getThumbnail(), null, 
+                "Item with no thumbnail returns null");
+            
             assert.equal(matchEntry, newItemProps.id, 
                 "Added entry to catalog 'manually' with strings");
             
@@ -178,7 +195,8 @@ function testOPDSFeed() {
                     "New OPDS entry added to feed");
                 
                 var matchingLinkSearchResult = opdsObj.getEntriesByLinkParams(
-                        "application/epub+zip", UstadJSOPDSEntry.LINK_ACQUIRE, true);
+                        UstadJSOPDSEntry.LINK_ACQUIRE, "application/epub+zip",
+                    {linkRelByPrefix: true});
                 var numMatchingEntries = matchingLinkSearchResult.length;
                 assert.ok(numMatchingEntries >= 1,  
                     "Found " + numMatchingEntries + " entries");

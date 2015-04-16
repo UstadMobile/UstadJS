@@ -229,6 +229,21 @@ UstadJSOPDSFeed.prototype = {
         }
     },
     
+    
+    /**
+     * Returns true if this is an acquisition OPDS feed; false otherwise.
+     * As per the OPDS spec an acquisition feed is any feed that contains
+     * acquisition links on entries
+     * 
+     * @returns {boolean} whether this an acquisition feed or not
+     */
+    isAcquisitionFeed: function() {
+        var result = this.getEntriesByLinkParams(
+            UstadJSOPDSEntry.LINK_ACQUIRE, null, 
+            {linkRelByPrefix: true});
+        return (result.length > 0);
+    },
+    
     /**
      * Add an opds entry to this feed
      * 
@@ -253,23 +268,31 @@ UstadJSOPDSFeed.prototype = {
      * getEntriesByLinkType("application/atom+xml;profile=opds-catalog;kind=acquisition")
      * 
      * 
-     * @param {string} linkType type of link to look for (required)
+     
      * @param {string} linkRel relationship of link to look for e.g. 
-     * http://opds-spec.org/acquisition
-     * @param {boolean=true} linkRelFallback if false match the exact type, otherwise settle for
-     * substring match.  Eg. just http://opds-spec.org/acquisition will match
-     * all other acquisition types
+     * http://opds-spec.org/acquisition .  Null will match all types and those 
+     * without type attribute
      * 
+     * @param {string} linkType mime type of link to look for
+     * 
+     * @param {boolean} [options.linkRelByPrefix=false] get matches if the
+     * given linkRel matches the start of that on the element e.g.
+     * http://opds-spec.org/acquisition would also match a link with rel
+     * http://opds-spec.org/acquisition/open-access
+     * 
+     * @param {boolean} [options.mimeTypeByPrefix=false] get matches if the given
+     * mimeType of the link matches the start of the mimeType argument e.g.
+     * application/epub would match application/epub+zip
+          * 
      * @returns {UstadJSOPDSEntry[]}
      */
-    getEntriesByLinkParams: function(linkType, linkRel, linkRelFallback) {
+    getEntriesByLinkParams: function(linkRel, linkType, options) {
         var matchingEntries = [];
-        linkRelFallback = (typeof linkRelFallback === "undefined") ? true :
-                linkRelFallback;
+        
         for(var i = 0; i < this.entries.length; i++) {
-            var acquireLink = this.entries[i].getAcquisitionLinks(linkRel,
-                linkType, linkRelFallback);
-            if(acquireLink) {
+            var linksByType = this.entries[i].getLinks(linkRel, linkType, 
+                options);
+            if(linksByType.length > 0) {
                 matchingEntries.push(this.entries[i]);
             }
         }
@@ -337,6 +360,18 @@ UstadJSOPDSEntry.LINK_ACQUIRE_OPENACCESS =
         "http://opds-spec.org/acquisition/open-access";
 
 /**
+ * OPDS constant for the cover image / artwork for an item
+ * @type Strnig
+ */
+UstadJSOPDSEntry.LINK_IMAGE = "http://opds-spec.org/image";
+
+/**
+ * OPDS constnat for the thumbnail
+ * @type String
+ */
+UstadJSOPDSEntry.LINK_THUMBNAIL = "http://opds-spec.org/image/thumbnail";
+
+/**
  * Type to be used for a catalog link of an acquisition feed as per OPDS spec
  * 
  * @type String
@@ -385,8 +420,9 @@ UstadJSOPDSEntry.prototype = {
         }else {
             return getLinkResult[0].href;
         }
-        
     },
+    
+    
     
     /**
      * Get links for this entry according to the relation or mimeType
@@ -412,6 +448,7 @@ UstadJSOPDSEntry.prototype = {
         var result = [];
         var linkElements = this.xmlNode.getElementsByTagNameNS(
             "http://www.w3.org/2005/Atom", "link");
+        options = options || {};
     
         for(var i = 0; i < linkElements.length; i++) {
             var matchRel = true;
@@ -441,6 +478,27 @@ UstadJSOPDSEntry.prototype = {
         }
         
         return result;
+    },
+    
+    /**
+     * Return a URL to the thumbnail of this item.  Will look first for
+     * the thumbnail link, if that is not found; then will return the main 
+     * image.
+     * 
+     * @returns {String} URL of thumbnail if found, null otherwise
+     */
+    getThumbnail: function(options) {
+        var thumbnailLinks = this.getLinks(UstadJSOPDSEntry.LINK_THUMBNAIL, null);
+        if(thumbnailLinks.length > 0) {
+            return thumbnailLinks[0].href;
+        }
+        
+        var imageLinks = this.getLinks(UstadJSOPDSEntry.LINK_IMAGE, null);
+        if(imageLinks.length > 0) {
+            return imageLinks[0].href;
+        }
+        
+        return null;
     },
     
     

@@ -36,11 +36,18 @@
 	</author><content type="text">Standards are a good thing</content></entry>
 
 
-<entry><title>Categories R Cool</title><link rel="subsection"
+        <entry>
+            <title>Categories R Cool</title>
+            <link rel="subsection"
 			href="/opds/course/?id=http://www.ustadmobile.com/um-tincan/course/33" 
-			type="application/atom+xml;profile=opds-catalog;kind=navigation"/><id>http://www.ustadmobile.com/um-tincan/course/35</id><updated>2015-02-09T18:58:12Z</updated><author>
-	<name>Varuna Singh</name> 
-	<uri>/user/2</uri>
-	</author><content type="text">Categories are super good</content></entry>
+			type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
+            <id>http://www.ustadmobile.com/um-tincan/course/35</id>
+            <updated>2015-02-09T18:58:12Z</updated>
+            <author>
+                <name>Varuna Singh</name> 
+                <uri>/user/2</uri>
+            </author>
+            <content type="text">Categories are super good</content>
+        </entry>
 
 </feed>
