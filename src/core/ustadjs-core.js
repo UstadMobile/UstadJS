@@ -463,7 +463,7 @@ UstadJSOPDSEntry.prototype = {
             
             if(mimeType !== null) {
                 var mimeTypeCompare = options.mimeTypeByPrefix ?
-                    linkElements[i].getAttribute("type").substring(mimeType.length) :
+                    linkElements[i].getAttribute("type").substring(0, mimeType.length) :
                     linkElements[i].getAttribute("type");
                 matchType = (mimeTypeCompare === mimeType);
             }
@@ -501,6 +501,20 @@ UstadJSOPDSEntry.prototype = {
         return null;
     },
     
+    /**
+     * Gets the publisher if specified for this entry, null if not present
+     * 
+     * @returns {String} 
+     */
+    getPublisher: function() {
+        var publisherElements = this.xmlNode.getElementsByTagNameNS(
+            "http://purl.org/dc/terms/", "publisher");
+        if(publisherElements.length > 0) {
+            return publisherElements[0].textContent;
+        }else {
+            return null;
+        }
+    },
     
     loadFromXMLNode: function(xmlNode) {
         this.xmlNode = xmlNode;

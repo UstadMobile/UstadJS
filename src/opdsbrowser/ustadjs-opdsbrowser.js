@@ -74,18 +74,11 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             _opdsFeedObj : null,
             
             /**
-             * Callback to run when the user selects a navigation feed
+             * Callback to run when the user selects another feed
              * 
              * @type {function}
              */
-            navigationfeedselected: null,
-            
-            /**
-             * Callback to run when the user selects an acquisition feed
-             * 
-             * @type {function}
-             */
-            acquisitionfeedselected: null,
+            feedselected: null,
             
             /**
              * Callback to run when the user selects an acquisition container
@@ -117,7 +110,10 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
                 "notacquired" : "Download",
                 "inprogress" : "Downloading...",
                 "acquired" : "Open"
-            }
+            },
+            
+            /** If true and jQueryMobile is present, will call enhanceWithin */
+            autoJQM : true
             
         },
         
@@ -151,52 +147,45 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
          */
         setupnavigationfeedview: function(opdsSrc) {
             this.options._opdsFeedObj = opdsSrc;
+            this._updateFeedAbsoluteBaseURL();
+            
             this.element.empty();
             
             this._appendTitle(opdsSrc.title);
             
-            var feedInfo = [
-                {
-                    "type" : "acquisition",
-                    "linkType" : UstadJSOPDSEntry.TYPE_ACQUISITIONFEED,
-                },
-                {
-                    "type" : "navigation",
-                    "linkType" : UstadJSOPDSEntry.TYPE_NAVIGATIONFEED
-                }
-            ];
-            
             var feedItems = opdsSrc.getEntriesByLinkParams(null, 
                 "application/atom+xml", {mimeTypeByPrefix: true});
             
+            var feedElContainer= $("<ul/>", {
+                "class" : "umjs_opdsbrowser_item_feed",
+                "data-role" : "listview",
+                "data-inset" : "true"
+            });
+            this.element.append(feedElContainer);
+            
+            var lastFeedItem = null;
             for(var g = 0; g < feedItems.length; g++) {
-                
+                var elEntry = this._makeFeedElement(feedItems[g],
+                    "navigation");
+                feedElContainer.append(elEntry);
+                lastFeedItem = feedElContainer;
             }
             
+            //put the clearfix on so it will compute height
+            lastFeedItem.addClass("umjs_clearfix");
             
-            for(var f = 0; f < feedInfo.length; f++) {
-                var feedType = feedInfo[f].type;
-                var feedElContainer= $("<ul/>", {
-                    class : "umjs_opdsbrowser_" + feedType + "feeds",
-                    "data-role" : "listview",
-                    "data-inset" : "true"
-                });
-                
-                this[feedType + "FeedContainer"]  = feedElContainer;
-                this.element.append(feedElContainer);
-                
-                var feedList = opdsSrc.getEntriesByLinkParams(
-                    null, feedInfo[f].linkType);
-                for(var e = 0; e < feedList.length; e++) {
-                    var elEntry = this._makeFeedElement(feedList[e],
-                        feedType);
-                    feedElContainer.append(elEntry);
-                }
+            
+            
+            
+            if(this.options.autoJQM && this.element.enhanceWithin) {
+                this.element.enhanceWithin();
             }
+            
         },
         
         setupacquisitionfeedview: function(opdsSrc) {
             this.options._opdsFeedObj = opdsSrc;
+            this._updateFeedAbsoluteBaseURL();
             this.element.empty();
             this._appendTitle(opdsSrc.title);
             this.element.addClass("umjs_opdsbrowser_acquisitionfeedview");
@@ -219,6 +208,11 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             
         },
         
+        _updateFeedAbsoluteBaseURL: function() {
+            this._feedAbsoluteBaseURL = UstadJS.makeAbsoluteURL(
+                this.options._opdsFeedObj.href);
+        },
+        
         /**
          * 
          * @param {type} entryId
@@ -231,9 +225,9 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
                 entryId + "']");
             var feedType = entryEl.attr("data-feed-type");
             
-            entryEl.children(".umjs_opdsbrowser_statusarea").replaceWith(
+            /*entryEl.children(".umjs_opdsbrowser_statusarea").replaceWith(
                 this._makeFeedElementStatusArea(entryId, feedType, elStatus, 
-                options));
+                options));*/
         },
         
         updateentryprogress: function(entryId, progressEvt) {
@@ -250,6 +244,25 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             this._trigger("containerentryselected", null, {
                 entryId : entryId,
                 entry : entry
+            });
+        },
+        
+        /**
+         * Fire the feedselected event when the user clicks on a feed 
+         * displayed
+         * 
+         * @param {Event} evt
+         * @param {Object} data
+         */
+        _handleFeedClick: function(evt, data) {
+            var clickedFeedEntryLink = $(evt.delegateTarget);
+            var clickedFeedEntry = clickedFeedEntryLink.parent("li");
+            var clickedFeedId = $(clickedFeedEntry).attr("data-feed-id");
+            var clickedFeedType = $(clickedFeedEntry).attr("data-feed-type");
+            this._trigger("feedselected", null, {
+                feedId : clickedFeedId,
+                feedType : clickedFeedType,
+                entry : this.options._opdsFeedObj.getEntryById(clickedFeedId)
             });
         },
         
@@ -329,6 +342,17 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
         },
         
         /**
+         * Generate the credit text for an opds entry - first look for publisher
+         * if none, then use author
+         * 
+         * @param {type} entry
+         * @returns {undefined}
+         */
+        _makeCreditForEntry: function(entry) {
+            return entry.getPublisher();
+        },
+        
+        /**
          * Make a div element that will represent an feed object to be clicked on
          * 
          * @param {UstadJSOPDSEntry} entry the entry to make an element for
@@ -350,22 +374,13 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             });
             elEntry.append(elLink);
             
-           
-            var widgetObj = this;
-            elLink.on("click", function(evt) {
-                var clickedFeedId = $(this).attr("data-feed-id");
-                var clickedFeedType = $(this).attr("data-feed-type");
-                var evtName = clickedFeedType + "feedselected";
-                widgetObj._trigger(evtName, null, {
-                    feedId : clickedFeedId,
-                    feedType : clickedFeedType,
-                    entry : entry
-                });
-            });
+            elLink.on("click", this._handleFeedClick.bind(this));
             
-           
-            //TODO: check the picture here
-            var imgSrc = this.options["defaulticon_" + feedType + "feed"];
+            
+            var entryThumbnail = entry.getThumbnail();
+            var imgSrc = entryThumbnail ? 
+                UstadJS.resolveURL(this._feedAbsoluteBaseURL, entryThumbnail) : 
+                this.options["defaulticon_" + feedType + "feed"];
             
             elLink.append($("<img/>", {
                 "src": imgSrc,
@@ -386,13 +401,27 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             elEntry.append(this._makeFeedElementStatusArea(entry.id, feedType,
                 elStatus));
             */
-           
-            var providerAside = "<p>" +
-                "<img class='provider_logo' src=\"" + 
-                this.options.defaulticon_acquisitionfeed +
-                "\"/>" +
-                "By Author</p>";
-            elLink.append(providerAside);
+            
+            var pContent = $("<p/>");
+            
+            var providerImgLinks = entry.getLinks(
+                "http://www.ustadmobile.com/providerimg", null);
+        
+            if(providerImgLinks.length > 0) {
+                var providerImgSrc= UstadJS.resolveURL(
+                    this._feedAbsoluteBaseURL, providerImgLinks[0].href);
+                $("<img/>", {
+                    "class" : "provider-logo",
+                    "src" : providerImgSrc
+                }).appendTo(pContent);
+            }
+            
+            
+            if(entry.getPublisher()) {
+                pContent.append(this._makeCreditForEntry(entry));
+            }
+            elLink.append(pContent);
+            
             return elEntry;
         }
         

@@ -62,10 +62,10 @@ module.exports = function(grunt) {
                         'test/test-opubframe.html?coverage=true&gruntReport',
                         'test/test-core.html?coverage=true&gruntReport',
                         //Temporarily disabled whilst being reworked to cooperate with JQueryMobile
-                        //'test/test-opdsbrowser.html?coverage=true&gruntReport',
+                        'test/test-opdsbrowser.html?coverage=true&gruntReport',
                         'test/test-microemu.html?coverage=true&gruntReport'
                     ],
-                    threshold: 90
+                    threshold: 80
                 }
             }
             

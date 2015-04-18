@@ -1,32 +1,38 @@
 /* A bit custom styling */
-/*.my-page .ui-listview li .ui-btn p {
+/*.umjs_opdsbrowser .ui-listview li .ui-btn p {
     color: #c0c0c0;
 }*/
 
-.my-page .ui-listview li .ui-btn .ui-li-aside {
+.umjs_opdsbrowser .ui-listview li .ui-btn .ui-li-aside {
     color: #eee;
+}
+
+.provider-logo {
+    max-width: 22px;
+    max-height: 22px;
+    margin: 0px 4px;
 }
 
 /* First breakpoint is 48em (768px). 3 column layout. Tiles 250x250 pixels incl. margin at the breakpoint. */
 @media ( min-width: 30em ) {
-    .my-page .ui-content {
+    .umjs_opdsbrowser .ui-content {
         padding: .5625em; /* 9px */
     }
     
-    .my-page .ui-listview li {
+    .umjs_opdsbrowser .ui-listview li {
         float: left;
         width: 180px;
         height: 220px; 
         margin: .5625em 1.2%;
     }
-    .my-page .ui-listview li > .ui-btn {
+    .umjs_opdsbrowser .ui-listview li > .ui-btn {
         -webkit-box-sizing: border-box; /* include padding and border in height so we can set it to 100% */
         -moz-box-sizing: border-box;
         box-sizing: border-box;
         height: 100%;
         padding: 5px;
     }
-    .my-page .ui-listview li.ui-li-has-thumb .ui-li-thumb {
+    .umjs_opdsbrowser .ui-listview li.ui-li-has-thumb .ui-li-thumb {
         width: auto; /* To keep aspect ratio. */
         height: 120px;
         max-height: 120px;
@@ -37,19 +43,19 @@
         display: block;
     }
     /* Make all list items and anchors inherit the border-radius from the UL. */
-    .my-page .ui-listview li,
-    .my-page .ui-listview li .ui-btn,
-    .my-page .ui-listview .ui-li-thumb {
+    .umjs_opdsbrowser .ui-listview li,
+    .umjs_opdsbrowser .ui-listview li .ui-btn,
+    .umjs_opdsbrowser .ui-listview .ui-li-thumb {
         -webkit-border-radius: inherit;
         border-radius: inherit;
     }
     /* Hide the icon */
-    .my-page .ui-listview .ui-btn-icon-right:after {
+    .umjs_opdsbrowser .ui-listview .ui-btn-icon-right:after {
         display: none;
     }
     /* Make text wrap. */
-    .my-page .ui-listview h2,
-    .my-page .ui-listview p {
+    .umjs_opdsbrowser .ui-listview h2,
+    .umjs_opdsbrowser .ui-listview p {
         white-space: normal;
         overflow: visible;
         position: absolute;
@@ -57,16 +63,16 @@
         right: 0;
     }
     /* Text position */
-    .my-page .ui-listview h2 {
+    .umjs_opdsbrowser .ui-listview h2 {
         font-size: 1.25em;
         margin: 0;
         padding: .125em 1em;
         bottom: 50%;
     }
-    .my-page .ui-listview p {
+    .umjs_opdsbrowser .ui-listview p {
         font-size: 1em;
         margin: 0;
-        padding: 0 1.25em;
+        padding: 0 1.6em;
         height: 28px;
         min-height: 28px;
         //min-height: 50%;
@@ -92,7 +98,7 @@
         border-top: 1px solid white;
     }
     /* ui-li-aside has class .ui-li-desc as well so we have to override some things. */
-    .my-page .ui-listview .ui-li-aside {
+    .umjs_opdsbrowser .ui-listview .ui-li-aside {
         padding: .125em .625em;
         width: auto;
         min-height: 0;
@@ -110,27 +116,27 @@
         border-bottom-right-radius: 0;
     }
     
-    .provider_logo {
-        max-width: 24px;
-        max-height: 24px;
-        margin: 0px 4px;
+    .provider-logo {
+        position: absolute;
+        bottom: 2px;
+        left: 0;
     }
     
     /* If you want to add shadow, don't kill the focus style. */
-    .my-page .ui-listview li {
+    .umjs_opdsbrowser .ui-listview li {
         -moz-box-shadow: 0px 0px 9px #111;
         -webkit-box-shadow: 0px 0px 9px #111;
         box-shadow: 0px 0px 9px #111;
     }
     /* Images mask the hover bg color so we give desktop users feedback by applying the focus style on hover as well. */
-    .my-page .ui-listview li > .ui-btn:hover {
+    .umjs_opdsbrowser .ui-listview li > .ui-btn:hover {
         -moz-box-shadow: 0px 0px 12px #33ccff;
         -webkit-box-shadow: 0px 0px 12px #33ccff;
         box-shadow: 0px 0px 12px #33ccff;
     }
     /* Animate focus and hover style, and resizing. */
-    .my-page .ui-listview li,
-    .my-page .ui-listview .ui-btn {
+    .umjs_opdsbrowser .ui-listview li,
+    .umjs_opdsbrowser .ui-listview .ui-btn {
         -webkit-transition: all 500ms ease;
         -moz-transition: all 500ms ease;
         -o-transition: all 500ms ease;

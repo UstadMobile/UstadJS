@@ -3,11 +3,11 @@
  */
 
 $(document).on("mobileinit", function() {
-    $.ajax("../assets/shelf.opds", {
+    $.ajax("../assets/shelf-jqm.opds", {
         dataType : "text"
     }).done(function(opdsStr) {
         var opdsObj = UstadJSOPDSFeed.loadFromXML(opdsStr, 
-            "../assets/shelf.opds");
+            "../assets/shelf-jqm.opds");
         $(".ustadjs_opdsbrowser").opdsbrowser({
             "defaulticon_acquisitionfeed": "../../src/img/default-acquire-icon.png",
             "defaulticon_navigationfeed" : "../../src/img/default-navigation-icon.png",

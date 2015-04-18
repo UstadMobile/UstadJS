@@ -78,7 +78,7 @@ function testPathResolver() {
 
 function testOPDSFeed() {
     QUnit.test("Load and interpret opds feed", function(assert) {
-        assert.expect(22);
+        assert.expect(24);
         var opdsDoneFn = assert.async();
         
         $.ajax("assets/catalog1.opds", {
@@ -113,6 +113,12 @@ function testOPDSFeed() {
                 "/covers/11241.lrg.jpg",
                 "Loaded image as thumbnail when no thumbnail itself is present");
             
+            //make sure we can get the publisher
+            assert.equal(opdsObj.entries[0].getPublisher(), 
+               null, "Loaded specified publisher");
+                
+            assert.equal(opdsObj.entries[1].getPublisher(),
+                "StampMeOnline, Inc.", "Null returns when there is no publisher");
             
             var entry1Summary = opdsObj.entries[1].getSummary();
             assert.equal(entry1Summary.substring(0, 28), 
