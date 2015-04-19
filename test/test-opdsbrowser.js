@@ -66,6 +66,7 @@ function testUstadJSOPDSBrowser() {
         
     });
     
+    
     QUnit.test("UstadJS OPDSBrowser - Acquisition Feed View", function(assert) {
         assert.expect(1);
         var donefn = assert.async();
@@ -79,6 +80,7 @@ function testUstadJSOPDSBrowser() {
             
         });
     });
+    
 }
 
 function testUstadJSOPDSBrowserAcquisitionFeed(opdsObj, assert, itemSelector, donefn2) {
@@ -87,7 +89,7 @@ function testUstadJSOPDSBrowserAcquisitionFeed(opdsObj, assert, itemSelector, do
     $(itemSelector).opdsbrowser(
                 "setupacquisitionfeedview", opdsObj);
     
-    assert.ok($(itemSelector).hasClass("umjs_opdsbrowser_acquisitionfeedview"),
+    assert.ok($(itemSelector).hasClass("umjs_opdsbrowser_acqfeed"),
         "has correct class");
     
     
@@ -97,7 +99,7 @@ function testUstadJSOPDSBrowserAcquisitionFeed(opdsObj, assert, itemSelector, do
         donefn2();
     });
     
-    $(itemSelector + " .umjs_opdsbrowser_containerentry_element").first().trigger("click");
+    $(itemSelector + " li a").first().trigger("click");
 }
 
 

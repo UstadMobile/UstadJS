@@ -150,6 +150,7 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             this._updateFeedAbsoluteBaseURL();
             
             this.element.empty();
+            this.element.addClass("umjs_opdsbrowser_navfeed");
             
             this._appendTitle(opdsSrc.title);
             
@@ -164,17 +165,19 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             this.element.append(feedElContainer);
             
             var lastFeedItem = null;
+            
             for(var g = 0; g < feedItems.length; g++) {
-                var elEntry = this._makeFeedElement(feedItems[g],
-                    "navigation");
+                var elEntry = this._makeFeedElement(feedItems[g], {
+                    feedType : "navigation",
+                    clickHandler: this._handleFeedClick.bind(this)
+                });
+                    
                 feedElContainer.append(elEntry);
                 lastFeedItem = feedElContainer;
             }
             
             //put the clearfix on so it will compute height
             lastFeedItem.addClass("umjs_clearfix");
-            
-            
             
             
             if(this.options.autoJQM && this.element.enhanceWithin) {
@@ -188,11 +191,25 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             this._updateFeedAbsoluteBaseURL();
             this.element.empty();
             this._appendTitle(opdsSrc.title);
-            this.element.addClass("umjs_opdsbrowser_acquisitionfeedview");
+            this.element.addClass("umjs_opdsbrowser_acqfeed");
+            
+            var elContainer = $("<ul/>", {
+                "class" : "umjs_opdsbrowser_item_feed",
+                "data-role" : "listview",
+                "data-inset" : "true"
+            }).appendTo(this.element);
             
             for(var f = 0; f < opdsSrc.entries.length; f++) {
-                var containerEl = this._makeContainerElement(opdsSrc.entries[f]);
-                this.element.append(containerEl);
+                var containerEl = this._makeFeedElement(opdsSrc.entries[f], {
+                    feedType: "acquisition",
+                    clickHandler: this._handleContainerElClick.bind(this),
+                    showSummary: true
+                });
+                elContainer.append(containerEl);
+            }
+            
+            if(this.options.autoJQM && this.element.enhanceWithin) {
+                this.element.enhanceWithin();
             }
         },
         
@@ -238,7 +255,9 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
         },
         
         _handleContainerElClick: function(evt, data) {
-            var entryId = $(evt.delegateTarget).attr("data-entry-id");
+            var clickedLink = $(evt.delegateTarget);
+            var clickedEntry = clickedLink.parent("li");
+            var entryId = clickedEntry.attr("data-entry-id");
             var entry = this.options._opdsFeedObj.getEntryById(entryId);
             
             this._trigger("containerentryselected", null, {
@@ -257,8 +276,8 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
         _handleFeedClick: function(evt, data) {
             var clickedFeedEntryLink = $(evt.delegateTarget);
             var clickedFeedEntry = clickedFeedEntryLink.parent("li");
-            var clickedFeedId = $(clickedFeedEntry).attr("data-feed-id");
-            var clickedFeedType = $(clickedFeedEntry).attr("data-feed-type");
+            var clickedFeedId = $(clickedFeedEntry).attr("data-entry-id");
+            var clickedFeedType = $(clickedFeedEntry).attr("data-entry-type");
             this._trigger("feedselected", null, {
                 feedId : clickedFeedId,
                 feedType : clickedFeedType,
@@ -266,43 +285,6 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             });
         },
         
-        
-        /**
-         * Make a container element for an entry that has containers for
-         * download
-         * 
-         * @param {UstadJSOPDSEntry} entry the entry to make the container
-         * element for
-         */
-        _makeContainerElement: function(entry) {
-            var containerEl = $("<div/>", {
-                "class" : "umjs_opdsbrowser_containerentry_element",
-                "data-entry-id" : entry.id
-            });
-            
-            var titleEl = $("<div/>", {
-                "class" : "umjs_entry_title"
-            });
-            titleEl.text(entry.title);
-            
-            containerEl.append(titleEl);
-            
-            
-            var imgEl = $("<img/>", {
-                src : this.options.defaulticon_containerelement,
-                class : "umjs_opdsbrowser_containerentry_cover"
-            });
-            containerEl.append(imgEl);
-            
-            var summaryContainer = $("<div/>", {
-                "class" : "umjs_opdsbrowser_containerentry_cover_summary"
-            });
-            summaryContainer.text(entry.getSummary(""));
-            containerEl.append(summaryContainer);
-            containerEl.on("click", this._handleContainerElClick.bind(this));
-            
-            return containerEl;
-        },
         
         
         /**
@@ -356,15 +338,20 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
          * Make a div element that will represent an feed object to be clicked on
          * 
          * @param {UstadJSOPDSEntry} entry the entry to make an element for
-         * @param {string} feedType acquisition or navigation
+         * @param {Object} options
+         * @param {function} options.clickHandler event handling method
+         * @param {String} [options.feedType=navigation] feed type
+         * @param {boolean} [options.showSummary=false] If true add the content
+         * of the OPDS entry
          * 
          * @returns {$|jQuery}
          */
-        _makeFeedElement: function(entry, feedType) {
+        _makeFeedElement: function(entry, options) {
+            var feedType = options.feedType || "navigation";
             var elEntry = $("<li/>", {
                 class : "umjs_opdsbrowser_" + feedType + "feed_element",
-                "data-feed-id" : entry.id,
-                "data-feed-type" : feedType
+                "data-entry-id" : entry.id,
+                "data-entry-type" : feedType
             });
             
             elEntry.addClass("umjs_opdsbrowser_feedelement");
@@ -374,7 +361,9 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             });
             elEntry.append(elLink);
             
-            elLink.on("click", this._handleFeedClick.bind(this));
+            if(options.clickHandler) {
+                elLink.on("click", options.clickHandler);
+            }
             
             
             var entryThumbnail = entry.getThumbnail();
@@ -403,6 +392,10 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             */
             
             var pContent = $("<p/>");
+            if(options.showSummary) {
+                var entrySummary = entry.getSummary() || "";
+                pContent.append(entrySummary);
+            }
             
             var providerImgLinks = entry.getLinks(
                 "http://www.ustadmobile.com/providerimg", null);
