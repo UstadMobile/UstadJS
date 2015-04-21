@@ -214,15 +214,19 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
         },
         
         /**
-         * Setup this OPDS feed browser from the given feed object.  This can be
-         * called on the same widget with a different feed, e.g. when the user
-         * clicks on a subcategory etc.
+         * Setup this OPDS feed browser from the given feed object.  If 
+         * an acquisition feed uses setupacquisitionfeedview otherwise
+         * it's a navigation feed and use setupnavigationfeedview
          * 
          * @param {UstadJSOPDSFeed} opdsSrc Source OPDS element
          * @returns {undefined}
          */
         setupfromfeed: function(opdsSrc) {
-            
+            if(opdsSrc.isAcquisitionFeed()) {
+                this.setupacquisitionfeedview(opdsSrc);
+            }else {
+                this.setupnavigationfeedview(opdsSrc);
+            }
         },
         
         _updateFeedAbsoluteBaseURL: function() {

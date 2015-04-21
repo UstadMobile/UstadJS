@@ -87,7 +87,7 @@ function testUstadJSOPDSBrowserAcquisitionFeed(opdsObj, assert, itemSelector, do
     assert.expect(3);
         
     $(itemSelector).opdsbrowser(
-                "setupacquisitionfeedview", opdsObj);
+                "setupfromfeed", opdsObj);
     
     assert.ok($(itemSelector).hasClass("umjs_opdsbrowser_acqfeed"),
         "has correct class");
@@ -114,7 +114,7 @@ function testUstadJSOPDSBrowserAcquisitionFeed(opdsObj, assert, itemSelector, do
 function testUstadJSOPDSBrowserNavFeed(opdsObj, assert, itemSelector, donefn) {
     assert.expect(3);
     assert.ok($(itemSelector).hasClass("umjs_opdsbrowser"));
-    $(itemSelector).opdsbrowser("setupnavigationfeedview", opdsObj);
+    $(itemSelector).opdsbrowser("setupfromfeed", opdsObj);
     assert.ok($(itemSelector).opdsbrowser("option", "_opdsFeedObj") === opdsObj,
         "OPDS Object is loaded");
     
