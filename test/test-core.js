@@ -78,7 +78,7 @@ function testPathResolver() {
 
 function testOPDSFeed() {
     QUnit.test("Load and interpret opds feed", function(assert) {
-        assert.expect(24);
+        assert.expect(25);
         var opdsDoneFn = assert.async();
         
         $.ajax("assets/catalog1.opds", {
@@ -102,6 +102,10 @@ function testOPDSFeed() {
             assert.equal(entry0Summary.substring(0, 31),
                 "The story of the son of the Bob",
                 "Got summary from first atom:summary item");
+            
+            //an acquisition link with no catalog feeds returns null
+            assert.equal(opdsObj.entries[1].getNavigationLink(), null,
+                "Asking for a navigation link on acquisition entry returns null");
             
             //make sure this has loaded the thumbnail
             assert.equal(opdsObj.entries[0].getThumbnail(),
@@ -217,8 +221,6 @@ function testOPDSFeed() {
                     -1);
                 assert.equal(cantFindLinearIndex, -1, 
                     "When no more linear items are available returns -1");
-                
-                
                 opdsDoneFn();
             });
             
@@ -226,6 +228,21 @@ function testOPDSFeed() {
         });
     });
     
+    QUnit.test("Load and interpret opds navigation feed", function(assert) {
+        assert.expect(2);
+        var opdsNavDoneFn = assert.async();
+        $.ajax("assets/shelf.opds", {
+            dataType: "text"
+        }).done(function(opdsStr2) {
+            var opdsObj = UstadJSOPDSFeed.loadFromXML(opdsStr2, 
+                "assets/shelf.opds");
+            assert.equal(opdsObj.isAcquisitionFeed(), false, 
+                "Navigation feed isAcquisitionFeed returns false");
+            assert.equal(opdsObj.entries[0].getNavigationLink().href,
+                "/acquire.opds", "Successfully finds navigation link href");
+            opdsNavDoneFn();
+        });
+    });
 }
 
 function testTinCanXML() {

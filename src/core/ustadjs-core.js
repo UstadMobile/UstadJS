@@ -372,6 +372,13 @@ UstadJSOPDSEntry.LINK_IMAGE = "http://opds-spec.org/image";
 UstadJSOPDSEntry.LINK_THUMBNAIL = "http://opds-spec.org/image/thumbnail";
 
 /**
+ * Atom/XML feed mime type constant
+ * 
+ * @type String
+ */
+UstadJSOPDSEntry.TYPE_ATOMFEED = "application/atom+xml";
+
+/**
  * Type to be used for a catalog link of an acquisition feed as per OPDS spec
  * 
  * @type String
@@ -422,6 +429,21 @@ UstadJSOPDSEntry.prototype = {
         }
     },
     
+    /**
+     * Gets the navigation link for this feed.  This is designed to work for
+     * entries in a navigation feed where the link is another atom/xml feed
+     * 
+     * @returns {Object} 
+     */
+    getNavigationLink: function() {
+        var linkResults = this.getLinks(null, UstadJSOPDSEntry.TYPE_ATOMFEED,
+            {mimeTypeByPrefix: true});
+        if(linkResults.length > 0) {
+            return linkResults[0];
+        }else {
+            return null;
+        }
+    },
     
     
     /**
