@@ -93,7 +93,7 @@ function testUstadJSOPDSBrowserAcquisitionFeed(opdsObj, assert, itemSelector, do
         "has correct class");
     
     
-    $(itemSelector).opdsbrowser("option", "containerentryselected", function(evt, data) {
+    $(itemSelector).opdsbrowser("option", "containerselected", function(evt, data) {
         assert.ok(data.entry instanceof UstadJSOPDSEntry, "Clicking triggers event with entry");
         assert.equal(data.entry.id, opdsObj.entries[0].id, "Loaded with correct id");
         donefn2();

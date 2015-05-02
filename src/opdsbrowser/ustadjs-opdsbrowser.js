@@ -86,7 +86,7 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
              * 
              * @type {function}
              */
-            containerentryselected : null,
+            containerselected : null,
             
             /**
              * A function that should return whether or not the given device id
@@ -264,7 +264,7 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             var entryId = clickedEntry.attr("data-entry-id");
             var entry = this.options._opdsFeedObj.getEntryById(entryId);
             
-            this._trigger("containerentryselected", null, {
+            this._trigger("containerselected", null, {
                 entryId : entryId,
                 entry : entry
             });
