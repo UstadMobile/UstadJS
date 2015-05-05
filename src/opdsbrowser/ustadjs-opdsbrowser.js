@@ -242,7 +242,7 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
          * @returns {undefined}
          */
         updateentrystatus: function(entryId, elStatus, options) {
-            var entryEl = $("div.umjs_opdsbrowser_feedelement[data-feed-id='" +
+            var entryEl = $("div.umjs_opdsbrowser_feedelement[data-entry-id='" +
                 entryId + "']");
             var feedType = entryEl.attr("data-feed-type");
             
@@ -251,9 +251,22 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
                 options));*/
         },
         
+        /**
+         * Set if the progress area for a given entry should be visible or not
+         * 
+         * @param {type} entryId
+         * @param {type} visible
+         * @returns {undefined}
+         */
+        progressentryvisible: function(entryId, visible) {
+            $("li.umjs_opdsbrowser_feedelement[data-entry-id='" +
+                entryId + "'] .umjs_opdsbrowser_progressarea").css("visibility",
+                visible ? "visible" : "hidden");
+        },
+        
         updateentryprogress: function(entryId, progressEvt) {
-            var progressEl = $("div.umjs_opdsbrowser_feedelement[data-feed-id='" +
-                entryId + "'] progress");
+            var progressEl = $("li.umjs_opdsbrowser_feedelement[data-entry-id='" +
+                entryId + "'] .umjs_opdsbrowser_progressarea progress");
             progressEl.attr("value", progressEvt.loaded);
             progressEl.attr("max", progressEvt.total);
         },
@@ -418,6 +431,12 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
                 pContent.append(this._makeCreditForEntry(entry));
             }
             elLink.append(pContent);
+            
+            var statusArea = $("<div/>", {
+                "class" : "umjs_opdsbrowser_progressarea"
+            });
+            statusArea.append("<progress max='100' value='0'/>");
+            elLink.append(statusArea);
             
             return elEntry;
         }

@@ -146,7 +146,8 @@ function testOPDSFeed() {
                 var acquireLink = opdsObj.entries[i].getAcquisitionLinks(
                         UstadJSOPDSEntry.LINK_ACQUIRE, "application/epub+zip",
                         true);
-                missingLink = missingLink || !acquireLink;
+                var firstAcquireLink = opdsObj.entries[i].getFirstAcquisitionLink();
+                missingLink = missingLink || (!acquireLink || !firstAcquireLink);
             }
             assert.ok(!missingLink, "Found acquire link for all entries");
             
