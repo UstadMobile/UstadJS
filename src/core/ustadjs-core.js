@@ -253,12 +253,22 @@ UstadJSOPDSFeed.prototype = {
         this.entries.push(opdsEntry);
         var entryNode = opdsEntry.xmlNode;
         if(entryNode.ownerDocument !== this.xmlDoc) {
-            entryNode = this.xmlDoc.importNode(opdsEntry.xmlNode, true);
+            entryNode = this.xmlDoc.importNode(opdsEntry.xmlNode, true);            
         }
         
+        //In case links come from another feed: convert to being absolute href links
+        if(opdsEntry.parentFeed !== this) {
+            var linkEls = entryNode.getElementsByTagNameNS(
+                "http://www.w3.org/2005/Atom", "link");
+            for(var i = 0; i < linkEls.length; i++) {
+                var linkHREFAbs = UstadJS.resolveURL(opdsEntry.parentFeed.href,
+                    linkEls[i].getAttribute("href"));
+                linkEls[i].setAttribute("href", linkHREFAbs);
+            }
+        }
+
         this.xmlDoc.documentElement.appendChild(entryNode);
         entryNode.namespaceURI = "http://www.w3.org/2005/Atom";
-        
     },
     
     /**
@@ -581,11 +591,13 @@ UstadJSOPDSEntry.prototype = {
             "http://www.w3.org/2005/Atom", "title");
         titleEl.textContent = item.title;
         this.xmlNode.appendChild(titleEl);
+        this.title = item.title;
         
         var idEl = parentDoc.createElementNS(
                 "http://www.w3.org/2005/Atom", "id");
         idEl.textContent = item.id;
         this.xmlNode.appendChild(idEl);
+        this.id = item.id;
         
         this.parentFeed.addEntry(this);
         

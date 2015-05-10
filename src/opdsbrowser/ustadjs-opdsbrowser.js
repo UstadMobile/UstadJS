@@ -403,6 +403,11 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             var elStatus = this.options.acquisitionstatushandler(entry.id, 
                 feedType);
             //Disable this for now
+            
+            
+            elEntry.append("<div class='umjs_opdsbrowser_entrystatusarea'></div>");
+            elEntry.addClass("umjs_opdsbrowser_status_" + elStatus);
+            
             /*
             elEntry.append(this._makeFeedElementStatusArea(entry.id, feedType,
                 elStatus));
