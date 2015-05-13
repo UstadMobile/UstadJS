@@ -38,6 +38,8 @@ $UstadJSOPDSBrowser.NOT_ACQUIRED = "notacquired";
 $UstadJSOPDSBrowser.ACQUISITION_IN_PROGRESS = "inprogress";
 $UstadJSOPDSBrowser.ACQUIRED = "acquired";
 
+$UstadJSOPDSBrowser.STATUSCLASS_PREFIX = "umjs_opdsbrowser_elstatus_";
+
 (function($){
     /**
      *
@@ -87,6 +89,13 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
              * @type {function}
              */
             containerselected : null,
+            
+            /**
+             * Callback to run when the user requests the context menu for an item
+             * (e.g. right clicks or taphold)
+             */
+            containercontextrequested: null,
+            
             
             /**
              * A function that should return whether or not the given device id
@@ -203,6 +212,7 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
                 var containerEl = this._makeFeedElement(opdsSrc.entries[f], {
                     feedType: "acquisition",
                     clickHandler: this._handleContainerElClick.bind(this),
+                    contextHandler: this._handleContainerElContext.bind(this),
                     showSummary: true
                 });
                 elContainer.append(containerEl);
@@ -242,9 +252,24 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
          * @returns {undefined}
          */
         updateentrystatus: function(entryId, elStatus, options) {
-            var entryEl = $("div.umjs_opdsbrowser_feedelement[data-entry-id='" +
+            var entryEl = $("li.umjs_opdsbrowser_feedelement[data-entry-id='" +
                 entryId + "']");
-            var feedType = entryEl.attr("data-feed-type");
+            
+            var statusList = [
+                $UstadJSOPDSBrowser.STATUS_UNKNOWN = "unknown",
+                $UstadJSOPDSBrowser.NOT_ACQUIRED = "notacquired",
+                $UstadJSOPDSBrowser.ACQUISITION_IN_PROGRESS = "inprogress",
+                $UstadJSOPDSBrowser.ACQUIRED = "acquired"
+            ];
+            for(var i = 0; i < statusList.length; i++) {
+                if(elStatus === statusList[i]){
+                    entryEl.addClass($UstadJSOPDSBrowser.STATUSCLASS_PREFIX +
+                        statusList[i]);
+                }else{
+                    entryEl.removeClass($UstadJSOPDSBrowser.STATUSCLASS_PREFIX +
+                        statusList[i]);
+                }
+            }
             
             /*entryEl.children(".umjs_opdsbrowser_statusarea").replaceWith(
                 this._makeFeedElementStatusArea(entryId, feedType, elStatus, 
@@ -271,6 +296,19 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             progressEl.attr("max", progressEvt.total);
         },
         
+        _handleContainerElContext: function(evt, data) {
+            var clickedLink = $(evt.delegateTarget);
+            var clickedEntry = clickedLink.parent("li");
+            var entryId = clickedEntry.attr("data-entry-id");
+            var entry = this.options._opdsFeedObj.getEntryById(entryId);
+            
+            this._trigger("containercontextrequested", null, {
+                entryId : entryId,
+                entry : entry,
+                srcEvent: evt
+            });
+        },
+        
         _handleContainerElClick: function(evt, data) {
             var clickedLink = $(evt.delegateTarget);
             var clickedEntry = clickedLink.parent("li");
@@ -279,7 +317,8 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             
             this._trigger("containerselected", null, {
                 entryId : entryId,
-                entry : entry
+                entry : entry,
+                srcEvent: evt
             });
         },
         
@@ -302,44 +341,6 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
             });
         },
         
-        
-        
-        /**
-         * Make the status area for a feed element being shown
-         * 
-         * @param {string} entryId The entry we are making a 
-         * @param {string} feedType "navigation" or "acquisition"
-         * @param {string} elStatus String as per $UstadJSOPDSBrowser constants
-         * @param {Object} options if status is in progress have .progress as num between 0 and 100
-         * @returns {jQuery|$} element for the feed status area
-         */
-        _makeFeedElementStatusArea: function(entryId, feedType, elStatus, options) {
-            var statusClassName = "umjs_opdsbrowser_elstatus_" + elStatus;
-            
-            var elStatusArea = $("<div/>", {
-                "class": "umjs_opdsbrowser_" + feedType + "statusarea" +
-                    " " + statusClassName
-            });
-            
-            elStatusArea.addClass("umjs_opdsbrowser_statusarea");
-            
-            if(elStatus === $UstadJSOPDSBrowser.ACQUISITION_IN_PROGRESS) {
-                var progressBar = $("<progress/>",{
-                    "value" : options.loaded,
-                    "max" : options.total
-                });
-                
-                elStatusArea.append(progressBar);
-            }else {
-                var buttonText = this.options["button_text_" + feedType][elStatus];
-                var buttonEl = $("<button/>");
-                buttonEl.text(buttonText);
-                elStatusArea.append(buttonEl);
-            }
-            
-            return elStatusArea;
-        },
-        
         /**
          * Generate the credit text for an opds entry - first look for publisher
          * if none, then use author
@@ -357,6 +358,7 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
          * @param {UstadJSOPDSEntry} entry the entry to make an element for
          * @param {Object} options
          * @param {function} options.clickHandler event handling method
+         * @param {function} options.contextHandler event when context menu might open - e.g. taphold or right click
          * @param {String} [options.feedType=navigation] feed type
          * @param {boolean} [options.showSummary=false] If true add the content
          * of the OPDS entry
@@ -382,7 +384,10 @@ $UstadJSOPDSBrowser.ACQUIRED = "acquired";
                 elLink.on("click", options.clickHandler);
             }
             
-            
+            if(options.contextHandler) {
+                elLink.on("taphold", options.contextHandler);
+            }
+             
             var entryThumbnail = entry.getThumbnail();
             var imgSrc = entryThumbnail ? 
                 UstadJS.resolveURL(this._feedAbsoluteBaseURL, entryThumbnail) : 

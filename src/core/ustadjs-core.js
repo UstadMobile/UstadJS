@@ -128,7 +128,10 @@ UstadJS.getDirPath = function(completePath) {
 
 UstadJS.resolveURL = function(baseURL, linkedURL) {
     var linkedURLLower = linkedURL.toLowerCase();
-    if(linkedURLLower.match(/^(http|https|ftp):\/\//)) {
+    var linkedURLWithoutQuery = linkedURL.indexOf("?") !== -1 ? 
+        linkedURLLower.substring(0, linkedURL.indexOf("?")) :
+        linkedURLLower;
+    if(linkedURLWithoutQuery.match(/[a-zA-Z0-9]+:\/\//)) {
         return linkedURL;//this is absolute
     }
     
