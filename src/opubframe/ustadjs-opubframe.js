@@ -31,6 +31,35 @@ GNU General Public License for more details.
 
  */
 
+var UstadJSOPUBFrame = function(element) {
+    this.element = element;
+    this.iframeElement = document.createElement("iframe");
+    this.element.append(this.iframeElement);
+    
+    this.iframeElement.style.width = "100%";
+    this.iframeElement.style.height = "100%";
+    this.iframeElement.style.margin = "0px";
+    this.iframeElement.style.border = "none";
+};
+
+UstadJSOPUBFrame.defaultOptions = {
+    "editable" : false,
+    "spine_pos" : 0,
+    "baseurl" : null,
+    //the UstadJSOPF object being represented
+    "opf" : null,
+    "height" : "100%",
+    "num_pages" : 0,
+    //the query parameters to add (e.g. tincan params) 
+    "page_query_params": null,
+    "pageloaded" : null
+};
+
+UstadJSOPUBFrame.prototype.handleLoadIframe = function(evt) {
+    
+};
+
+
 (function($){
     /**
      * attemptidevice - an awesome jQuery plugin. 
@@ -52,16 +81,20 @@ GNU General Public License for more details.
             "pageloaded" : null
         },
         
+        
         /**
          * Main widget creation
          */
         _create : function() {
+            /*
             this.iframeElement = document.createElement("iframe");
             this.element.append(this.iframeElement);
             $(this.iframeElement).css("width", "100%").css("height", "100%");
             $(this.iframeElement).css("margin", "0px");
             $(this.iframeElement).css("border", "none");
-            
+            */
+            this.opubFrame = new UstadJSOPUBFrame(this.element);
+            this.iframeElement = this.opubFrame.iframeElement;
             this.iframeElement.addEventListener("load",
                 $.proxy(this.iframeLoadEvt, this), true);
             this.runOnceOnFrameLoad = [];

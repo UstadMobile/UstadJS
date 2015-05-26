@@ -1,34 +1,20 @@
 /*
+    Copyright 2015 UstadMobile, Inc.
 
-UstadJS
+    This file is part of IFramePager
 
-Copyright 2014 UstadMobile, Inc
-  www.ustadmobile.com
+    IFramePager is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-Ustad Mobile is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version with the following additional terms:
- 
-All names, links, and logos of Ustad Mobile and Toughra Technologies FZ
-LLC must be kept as they are in the original distribution.  If any new
-screens are added you must include the Ustad Mobile logo as it has been
-used in the original distribution.  You may not create any new
-functionality whose purpose is to diminish or remove the Ustad Mobile
-Logo.  You must leave the Ustad Mobile logo as the logo for the
-application to be used with any launcher (e.g. the mobile app launcher).
- 
-If you want a commercial license to remove the above restriction you must
-contact us and purchase a license without these restrictions.
+    Foobar is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
- 
-Ustad Mobile is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
+    You should have received a copy of the GNU Lesser General Public License
+    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
 QUnit.module("UstadJS-Core");
 
@@ -36,6 +22,7 @@ QUnit.module("UstadJS-Core");
     testUstadJSGetContainer();
     
     testPathResolver();
+    testGetQueryVars();
     
     testRunCallback();
     
@@ -72,6 +59,15 @@ function testPathResolver() {
         assert.equal(UstadJS.resolveURL("https:/www.someplace.com/some/place.html",
             "./file.jpg"), 
             "https:/www.someplace.com/some/file.jpg");
+    });
+}
+
+function testGetQueryVars() {
+    QUnit.test("Get http query variables", function(assert) {
+        assert.expect(1);
+        var query1 = "?foo=b%40r&bob=b";
+        var queryVars = UstadJS.getURLQueryVars(query1);
+        assert.equal(queryVars.foo, "b@r");
     });
 }
 

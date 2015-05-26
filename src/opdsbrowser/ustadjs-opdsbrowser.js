@@ -38,7 +38,7 @@ $UstadJSOPDSBrowser.NOT_ACQUIRED = "notacquired";
 $UstadJSOPDSBrowser.ACQUISITION_IN_PROGRESS = "inprogress";
 $UstadJSOPDSBrowser.ACQUIRED = "acquired";
 
-$UstadJSOPDSBrowser.STATUSCLASS_PREFIX = "umjs_opdsbrowser_elstatus_";
+$UstadJSOPDSBrowser.STATUSCLASS_PREFIX = "umjs_opdsbrowser_status_";
 
 (function($){
     /**
@@ -270,10 +270,6 @@ $UstadJSOPDSBrowser.STATUSCLASS_PREFIX = "umjs_opdsbrowser_elstatus_";
                         statusList[i]);
                 }
             }
-            
-            /*entryEl.children(".umjs_opdsbrowser_statusarea").replaceWith(
-                this._makeFeedElementStatusArea(entryId, feedType, elStatus, 
-                options));*/
         },
         
         /**
@@ -411,7 +407,7 @@ $UstadJSOPDSBrowser.STATUSCLASS_PREFIX = "umjs_opdsbrowser_elstatus_";
             
             
             elEntry.append("<div class='umjs_opdsbrowser_entrystatusarea'></div>");
-            elEntry.addClass("umjs_opdsbrowser_status_" + elStatus);
+            elEntry.addClass($UstadJSOPDSBrowser.STATUSCLASS_PREFIX + elStatus);
             
             /*
             elEntry.append(this._makeFeedElementStatusArea(entry.id, feedType,

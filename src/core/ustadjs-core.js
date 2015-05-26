@@ -126,6 +126,31 @@ UstadJS.getDirPath = function(completePath) {
     return completePath.substring(0, completePath.lastIndexOf("/"));
 };
 
+/**
+ * Basic interpretation of name=val query parameters - will decode both the
+ * parameter name and the parameter value.  There must be a ? in the string
+ * e.g. as location.query returns ?foo=bar ...
+ * 
+ * @param {String} queryStr An string with HTTP Query variables after a ?
+ * @returns {Object} 
+ */
+UstadJS.getURLQueryVars = function(queryStr) {
+    var queryVars = {};
+    var qPos = queryStr.indexOf('?');
+    if(qPos !== -1 && queryStr.length > qPos+2) {
+        var query = queryStr.substring(qPos+1);
+        var vars = query.split("&");
+        for (var i=0;i<vars.length;i++) {
+            var pair = vars[i].split("=");
+            var paramName = decodeURIComponent(pair[0]);
+            var paramVal = decodeURIComponent(pair[1]);
+            queryVars[paramName] = paramVal;
+        }
+    }
+    
+    return queryVars;
+};
+
 UstadJS.resolveURL = function(baseURL, linkedURL) {
     var linkedURLLower = linkedURL.toLowerCase();
     var linkedURLWithoutQuery = linkedURL.indexOf("?") !== -1 ? 
